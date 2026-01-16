@@ -1,50 +1,70 @@
-# scripts/fetch_luiss_collabs.py
-
 from __future__ import annotations
 
 import json
 import time
+from itertools import chain
 from pathlib import Path
-from typing import Any, Dict, Iterable, Set
+from typing import Any, Dict, Set
 
-from pyalex import config, Institutions, Authors, Works
+from pyalex import Authors, config
 
-LUISS_INSTITUTION_ID = "i56441308"
-BASE_DIR = Path("Data")
-RAW_DIR = BASE_DIR / "Raw"
-DERIVED_DIR = BASE_DIR / "Derived"
-AUTHORS_PATH = RAW_DIR / "luiss_authors.jsonl"
-
+LUISS_INSTITUTION_ID = "I56441308"
 config.email = "marcomalliani@gmail.com"
 
-institution_obj = Institutions().search("LUISS").get(per_page=3)[0] # looking up Luiss university
-#print(institution_obj["authors_count"])
-#print(sorted(institution_obj.keys()))
+BASE_DIR = Path("Data")
+RAW_DIR = BASE_DIR / "Raw"
+AUTHORS_PATH = RAW_DIR / "luiss_authors.jsonl"
 
-luiss_associated_authors = (
-    Authors()
-    .filter(**{"last_known_institutions.id": LUISS_INSTITUTION_ID})
-    .select(["id", "display_name", "last_known_institutions"])
-    .get(per_page=5)
-)
+PER_PAGE = 200
 
-def get_author_works(author_id):
-    works = (
+def find_all_last_known_authors(institution_id: str):
+    query = (
+        Authors()
+        .filter(**{"last_known_institutions.id": institution_id})
+        .select(["id", "display_name"])
+    )
+    return list(chain.from_iterable(query.paginate(per_page=200, n_max=None)))
+
+def find_all_associated_works(author_id: str):
+    query = (
         Works()
         .filter(**{"author.id": author_id})
-        .select(["id", "display_name", "publication_year", "authorships"])
-        .get(per_page=3)
+        .select(["id", "display_name", "authorships"])
     )
-    return works
+    return list(chain.from_iterable(query.paginate(per_page=200, n_max=None)))
 
-test_author = luiss_associated_authors[0]
+# TO REMEMBER: lists are fine for now but later we will have to
+# implement JSONL saving as lists are expensive
 
-author_works = get_author_works(test_author["id"])
-test_work = author_works[0]
+luiss_authors = find_all_last_known_authors(LUISS_INSTITUTION_ID)
+print(f"Found {len(luiss_authors)} authors \n")
 
-print(f"Found {len(luiss_associated_authors)} authors")
-print(f"Currently fetching author with id: {test_author["id"]}")
-print("----------------------")
-print("\nWork title:", test_work.get("display_name"))
-print("Work id:", test_work.get("id"))
-print("Year:", test_work.get("publication_year"))
+if not luiss_authors:
+    raise ValueError("No authors found")
+
+author = random.choice(luiss_authors)
+works = find_all_associated_works(author["id"])
+
+print(f"Randomly selected author: {author['display_name']} ({author['id']})")
+print(f"Author's works number: {len(works)} \n")
+
+if not works:
+    raise ValueError("No works found for selected author")
+
+work = random.choice(works)
+authorships = work.get("authorships", [])
+
+# Extract coauthors excluding the chosen author
+coauthor_names = [
+    a["author"]["display_name"]
+    for a in authorships
+    if a.get("author") and a["author"].get("id") and a["author"]["id"] != author["id"]
+]
+
+print(f"Coauthors on selected work: {len(coauthor_names)}")
+
+if coauthor_names:
+    print("---------Co-authors---------")
+    print("\n".join(coauthor_names))
+else:
+    print("No coauthors.")
