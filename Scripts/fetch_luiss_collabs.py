@@ -36,7 +36,7 @@ def batched(iterable, batch_size=BATCH_SIZE): # batching to reduce the amount of
             break
         yield batch
 
-def fetch_all_last_known_authors(institution_id: str, path: Path = AUTHORS_PATH):
+def fetch_all_last_known_authors(institution_id: str = LUISS_INSTITUTION_ID, path: Path = AUTHORS_PATH):
     authors_query = (
         Authors()
         .filter(**{"last_known_institutions.id": institution_id})
@@ -110,6 +110,6 @@ def save_data(query, out_path: Path, existing_ids: Set[str] = None):
                 file.write("\n".join(lines) + "\n")
 
 if __name__ == "__main__":
-    fetch_all_last_known_authors(LUISS_INSTITUTION_ID)
+    fetch_all_last_known_authors()
     fetch_luiss_works()
     print("Done")
