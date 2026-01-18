@@ -10,8 +10,6 @@ from utils.project_paths import get_paths
 
 P = get_paths()  # new centralised project paths
 
-PROJECT_ROOT = P.ROOT
-BASE_DIR = P.DATA
 RAW_DIR = P.RAW_DIR
 DERIVED_DIR = P.DERIVED_DIR
 
@@ -134,10 +132,9 @@ def derive_hyperedges(hyperedges_path: Path = HYPEREDGES_PATH, derived_data_path
     print("derive_hyperedges")
 
 def convert_hyperedges_to_pairwise_edges_csv(hyperedges_path: Path = HYPEREDGES_PATH, edges_csv_out_path: Path = EDGES_CSV_PATH):
-    dict_key = Tuple[str, str]
-    pair_weights: Dict[dict_key, int] = {} # creating a dictionary stores counts for each author pair, where:
-                                           # the key is a tuple with author ids pair: id_1, id_2
-                                           # the value is a number of shared works
+    pair_weights: Dict[Tuple[str, str], int] = {} # creating a dictionary stores counts for each author pair, where:
+                                                  # the key is a tuple with author ids pair: id_1, id_2
+                                                  # the value is a number of shared works
 
     # read hyperedges line-by-line
     with hyperedges_path.open("r", encoding="utf-8") as input_file:

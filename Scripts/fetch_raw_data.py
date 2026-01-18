@@ -16,8 +16,6 @@ config.api_key = "oICxPdw6eeP6UJGK6xtQB1"
 
 # all files-navigation logic moved to project_paths.py
 P = get_paths()
-PROJECT_ROOT = P.ROOT
-BASE_DIR = P.DATA
 RAW_DIR = P.RAW_DIR
 
 AUTHORS_PATH = P.RAW_AUTHORS
