@@ -1,42 +1,58 @@
+from pathlib import Path
+import os
+import webbrowser
+
 from pyvis.network import Network
 import networkx as nx
 
-def generate_interactive_graph(nx_graph: nx.Graph, output_path: str = "interactive_graph.html"):
-    # Initialize the PyVis network
-    # height/width: Canvas size
-    # bgcolor/font_color: Dark mode theme for better visibility
-    net = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", select_menu=True)
-    
-    # Pre-process nodes for better interactivity
-    # We add 'title' for hover tooltips and 'value' for node sizing
+from utils.project_paths import get_paths
+
+P = get_paths()
+GRAPHS_DIR = Path(P.GRAPHS_DIR)
+
+def generate_interactive_graph(nx_graph: nx.Graph, graph_name: str = "interactive_graph.html"):
+    net = Network(
+        height="750px",
+        width="100%",
+        bgcolor="#222222",
+        font_color="white",
+        select_menu=True,
+        cdn_resources="local",  # make explicit; local => needs lib/
+    )
+
     degrees = dict(nx_graph.degree())
     strengths = dict(nx_graph.degree(weight="weight"))
 
     for node in nx_graph.nodes():
         deg = degrees[node]
         strg = strengths.get(node, 0)
-        
-        # Set attributes PyVis looks for
-        nx_graph.nodes[node]['value'] = deg  # Larger degree = Larger node
-        nx_graph.nodes[node]['title'] = (
+
+        nx_graph.nodes[node]["value"] = deg
+        nx_graph.nodes[node]["title"] = (
             f"<b>Author ID:</b> {node}<br>"
             f"<b>Degree:</b> {deg}<br>"
             f"<b>Strength:</b> {strg:.2f}"
         )
-        nx_graph.nodes[node]['label'] = str(node) # Text shown on the node
+        nx_graph.nodes[node]["label"] = str(node)
 
-    # Pre-process edges to show weight thickness
     for u, v, data in nx_graph.edges(data=True):
-        if 'weight' in data:
-            data['value'] = data['weight'] # Thicker line for higher weight
-            data['title'] = f"Weight: {data['weight']}"
+        if "weight" in data:
+            data["value"] = data["weight"]
+            data["title"] = f"Weight: {data['weight']}"
 
-    # Import the enriched NetworkX graph
     net.from_nx(nx_graph)
-    
-    # Enable physics controls so you can manipulate the layout in real-time
-    net.show_buttons(filter_=['physics'])
-    
-    # Save the file
-    print(f"Generating interactive graph at: {output_path}")
-    net.write_html(output_path)
+    net.show_buttons(filter_=["physics"])
+
+    # Ensure output dir exists
+    GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Force PyVis to create ./lib next to the HTML by changing CWD temporarily
+    old_cwd = os.getcwd()
+    os.chdir(GRAPHS_DIR)
+    try:
+        print(f"Generating interactive graph at: {GRAPHS_DIR / graph_name}")
+        net.write_html(graph_name)  # NOTE: just the filename now
+    finally:
+        os.chdir(old_cwd)
+
+    webbrowser.open(f"file://{GRAPHS_DIR / graph_name}")

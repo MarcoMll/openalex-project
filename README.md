@@ -22,6 +22,7 @@ Repository structure
   - `build_network.py`
 - `utils/`
   - `project_paths.py`
+  - `interactive_graph_converter.py`
 
 Requirements:
 - Python 3.10+
@@ -29,6 +30,7 @@ Requirements:
   - `pyalex`
   - `networkx`
   - `matplotlib`
+  - `pyvis`
 
 Minimal installation:
 ```bash
@@ -187,7 +189,7 @@ Here is the visual representation of how the data changes step by step:
 
 ---
 
-### Script: `build_network.py`
+### Script: `build_networkx_graph.py`
 
 **Purpose:**
 Loads the weighted pairwise co-authorship edges (`edges.csv`) into a NetworkX undirected graph, extracts the largest connected component for analysis, prints basic graph diagnostics, reports the top-10 authors by degree and weighted degree (“strength”), and visualizes the largest component using a spring layout.

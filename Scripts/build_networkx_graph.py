@@ -78,13 +78,10 @@ if __name__ == "__main__":
     for node, s in get_top_n_strenghts(Gc, 10):
         print(node, s)
 
-    pos = nx.spring_layout(Gc, seed=SEED)
-    generate_interactive_graph(Gc, "interactive_graph.html")
-    #nx.draw(Gc, pos=pos, with_labels=False, node_size=40)
     nx.draw_spring(Gc, node_size= 40)
 
     # saving image
     plt.savefig(GRAPH_IMG_PATH, dpi=300, bbox_inches="tight")
 
+    generate_interactive_graph(Gc, "interactive_graph.html") # converting to interactive
     plt.show()
-
