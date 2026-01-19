@@ -28,18 +28,25 @@ class ProjectPaths:
     HYPEREDGES: Path
     EDGES_CSV: Path
 
+    ASSETS_DIR: Path
+    IMAGES_DIR: Path
+
 
 def get_paths(project_root: Path | None = None) -> ProjectPaths:
     root = project_root or find_project_root()
     data = root / "Data"
     raw = data / "Raw"
     derived = data / "Derived"
+    assets = root / "Assets"
+    images = assets / "Images"
 
     return ProjectPaths(
         ROOT=root,
         DATA=data,
         RAW_DIR=raw,
         DERIVED_DIR=derived,
+        ASSETS_DIR=assets,
+        IMAGES_DIR=images,
         RAW_AUTHORS=raw / "raw_authors.jsonl",
         RAW_WORKS=raw / "raw_works.jsonl",
         DERIVED_WORKS=derived / "derived_works.jsonl",

@@ -10,6 +10,8 @@ P = get_paths()
 EDGES_CSV = P.EDGES_CSV
 SEED = 777
 
+GRAPH_IMG_PATH = P.IMAGES_DIR / "subgraph.png"
+
 def load_graph_from_edges_csv(path, max_edges: int = -1):
     graph = nx.Graph()
     edges_amount = 0
@@ -80,4 +82,8 @@ if __name__ == "__main__":
     pos = nx.spring_layout(Gc, seed=SEED)
     #nx.draw(Gc, pos=pos, with_labels=False, node_size=40)
     nx.draw_spring(Gc, node_size= 40)
+
+    # saving image
+    plt.savefig(GRAPH_IMG_PATH, dpi=300, bbox_inches="tight")
+
     plt.show()
