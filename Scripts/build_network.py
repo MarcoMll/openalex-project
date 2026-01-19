@@ -1,21 +1,25 @@
 import csv
+from operator import itemgetter
+
 import networkx as nx
+
 from utils.project_paths import get_paths
 import matplotlib.pyplot as plt
 
 P = get_paths()
 EDGES_CSV = P.EDGES_CSV
+SEED = 777
 
 def load_graph_from_edges_csv(path, max_edges: int = -1):
     graph = nx.Graph()
-    nodes_amount = 0
+    edges_amount = 0
 
     with path.open("r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
 
         for row in reader:
 
-            if max_edges != -1 and nodes_amount >= max_edges:
+            if max_edges != -1 and edges_amount >= max_edges:
                 break
 
             u = row["author_id_1"]
@@ -23,28 +27,57 @@ def load_graph_from_edges_csv(path, max_edges: int = -1):
             w = float(row["weight"])
 
             graph.add_edge(u, v, weight=w)
-            nodes_amount += 1
+            edges_amount += 1
 
     return graph
 
-edges = [(1, 2, 30), (2, 3, 4), (1, 3, 100), (1, 4, 2), (1, 5, 400), (2, 5, 1), (5, 3, 300), (4, 6, 10),
-         (4, 7, 50), (8, 9, 100), (8, 4, 4)]
-def create_graph():
-    graph = nx.Graph()
-    for edge in edges:
-        u = edge[0]
-        v = edge[1]
-        weight = edge[2]
-        graph.add_edge(u, v, weight=weight)
-    return graph
+def find_biggest_component(graph: nx.Graph):
+    components = nx.connected_components(graph)
+
+    if graph.number_of_nodes() == 0:
+        return None
+
+    biggest_component = max(components, key=len)
+    return biggest_component
+
+def get_subgraph_from_component_nodes(graph: nx.Graph, components: set[str]):
+    return graph.subgraph(components).copy()
+
+def get_top_n_degrees(graph, n):
+    pairs = G.degree()
+    sorted_pairs = sorted(pairs, key=itemgetter(1), reverse=True)[:n] # this is hardcoded
+                                                                      # idk yet how to do it in another way
+    return sorted_pairs
+
+# chatgpt made this, I don't really know what is going on here yet
+def get_top_n_strenghts(G, n):
+    # "strength" = weighted degree (sum of edge weights)
+    # NetworkX can compute it directly:
+    return sorted(G.degree(weight="weight"), key=itemgetter(1), reverse=True)[:n]
 
 if __name__ == "__main__":
     G = load_graph_from_edges_csv(EDGES_CSV)
-    #G = create_graph()
-    print("nodes:", G.number_of_nodes())
-    print("edges:", G.number_of_edges())
-    print(f"self loops: {nx.number_of_selfloops(G)}")
 
-    nx.draw_spring(G, with_labels=False)
-    #print(edges)
+    component_nodes = find_biggest_component(G)
+    Gc = get_subgraph_from_component_nodes(G, component_nodes)
+
+    print("===== Nodes/edges comparison =====")
+    print(f"G:  nodes={G.number_of_nodes()} edges={G.number_of_edges()}")
+    print(f"Gc: nodes={Gc.number_of_nodes()} edges={Gc.number_of_edges()}")
+
+    print("===== Components =====")
+    print("G components number:", nx.number_connected_components(G))
+    print("Biggest component size:", Gc.number_of_nodes())
+
+    print("===== Top-10 degree (Gc) =====")
+    for node, deg in get_top_n_degrees(Gc, 10):
+        print(node, deg)
+
+    print("===== Top-10 strength (Gc) =====")
+    for node, s in get_top_n_strenghts(Gc, 10):
+        print(node, s)
+
+    pos = nx.spring_layout(Gc, seed=SEED)
+    #nx.draw(Gc, pos=pos, with_labels=False, node_size=40)
+    nx.draw_spring(Gc, node_size= 40)
     plt.show()
