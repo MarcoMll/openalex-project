@@ -1,10 +1,9 @@
 import csv
 from operator import itemgetter
-
 import networkx as nx
-
-from utils.project_paths import get_paths
 import matplotlib.pyplot as plt
+from utils.project_paths import get_paths
+from utils.interactive_graph_converter import generate_interactive_graph
 
 P = get_paths()
 EDGES_CSV = P.EDGES_CSV
@@ -80,6 +79,7 @@ if __name__ == "__main__":
         print(node, s)
 
     pos = nx.spring_layout(Gc, seed=SEED)
+    generate_interactive_graph(Gc, "interactive_graph.html")
     #nx.draw(Gc, pos=pos, with_labels=False, node_size=40)
     nx.draw_spring(Gc, node_size= 40)
 
@@ -87,3 +87,4 @@ if __name__ == "__main__":
     plt.savefig(GRAPH_IMG_PATH, dpi=300, bbox_inches="tight")
 
     plt.show()
+
