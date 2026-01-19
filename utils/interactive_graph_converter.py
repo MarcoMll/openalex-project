@@ -16,15 +16,15 @@ P = get_paths()
 GRAPHS_DIR = Path(P.GRAPHS_DIR)
 IMAGES_DIR = Path(P.IMAGES_DIR)
 
-def save_graph_screenshot(html_path, output_dir=IMAGES_DIR, filename="graph_preview.png"):
-   # 1. Create the directory if it doesn't exist
+def save_graph_screenshot(html_path, output_dir=IMAGES_DIR, filename="interactive_graph_preview.png"):
+
     target_path = Path(output_dir)
     target_path.mkdir(parents=True, exist_ok=True)
     
-    # 2. Define the full save path
+    # defining the full save path
     save_to = target_path / filename
 
-    # 3. Setup Selenium (Headless)
+    # setup
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--window-size=1920,1080")
@@ -34,14 +34,14 @@ def save_graph_screenshot(html_path, output_dir=IMAGES_DIR, filename="graph_prev
         options=chrome_options
     )
 
-    # 4. Load and Capture
+    # loading and capturing the graph
     full_html_path = "file://" + os.path.abspath(html_path)
     driver.get(full_html_path)
     
     print(f"Stabilizing graph for 5 seconds...")
     time.sleep(5) 
 
-    # 5. Save using the new path
+    # saving
     driver.save_screenshot(str(save_to))
     driver.quit()
     
@@ -55,7 +55,7 @@ def generate_interactive_graph(nx_graph: nx.Graph, graph_name: str = "interactiv
         bgcolor="#222222",
         font_color="white",
         select_menu=True,
-        cdn_resources="local",  # make explicit; local => needs lib/
+        cdn_resources="local",
     )
 
     degrees = dict(nx_graph.degree())
@@ -81,7 +81,7 @@ def generate_interactive_graph(nx_graph: nx.Graph, graph_name: str = "interactiv
     net.from_nx(nx_graph)
     net.show_buttons(filter_=["physics"])
 
-    # Ensure output dir exists
+    # ensure output dir exists
     GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
 
     # Force PyVis to create ./lib next to the HTML by changing CWD temporarily
@@ -89,7 +89,7 @@ def generate_interactive_graph(nx_graph: nx.Graph, graph_name: str = "interactiv
     os.chdir(GRAPHS_DIR)
     try:
         print(f"Generating interactive graph at: {GRAPHS_DIR / graph_name}")
-        net.write_html(graph_name)  # NOTE: just the filename now
+        net.write_html(graph_name)
     finally:
         os.chdir(old_cwd)
     
@@ -98,6 +98,5 @@ def generate_interactive_graph(nx_graph: nx.Graph, graph_name: str = "interactiv
     save_graph_screenshot(
         html_path=html_file_path, 
         output_dir=IMAGES_DIR, 
-        filename="graph_preview.png"
     )
     webbrowser.open(f"file://{GRAPHS_DIR / graph_name}")

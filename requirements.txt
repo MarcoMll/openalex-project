@@ -18,3 +18,5 @@ six==1.17.0
 urllib3==2.6.3
 
 pyvis
+selenium
+webdriver-manager

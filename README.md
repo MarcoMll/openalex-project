@@ -192,13 +192,9 @@ Here is the visual representation of how the data changes step by step:
 ### Script: `build_networkx_graph.py`
 
 **Purpose:**
-Loads the weighted pairwise co-authorship edges (`edges.csv`) into a NetworkX undirected graph, then extracts and analyzes the largest connected component (LCC).
+Builds the “baseline” NetworkX graphs from the weighted edge list (`edges.csv`) and produces summary diagnostics that validate the network construction. These NetworkX graphs are treated as the raw graph objects for the next step in the pipeline. The script constructs:
 
-**Outputs:**
-- Console summary (nodes/edges, component counts, top-10 degree, top-10 strength)
-- A Matplotlib window showing the spring-layout visualization of the largest component
-
-**The original graph:** (all authors/edges produced by the pipeline)
+**The original graph:** (full undirected, weighted co-authorship graph, all nodes/edges derived from the dataset)
 ![original graph](Assets/Images/original_graph.png)
 
 **The largest-component graph:** (the induced subgraph of the LCC)
@@ -206,3 +202,17 @@ Loads the weighted pairwise co-authorship edges (`edges.csv`) into a NetworkX un
 
 > ℹ️ **Why we select the largest connected component:**
 > </br> The full co-authorship graph is fragmented into many disconnected components. This occurs naturally because some author groups never co-author with others within the institution-scoped dataset, resulting any network measures and visualizations become less interpretable on highly disconnected graphs.
+
+---
+
+### Script: `interactive_graph_converter.py`
+
+**Purpose:**
+Converts a NetworkX graph (in our case is the biggest_component subgraph) into an interactive HTML visualization using `PyVis`. This interactive graph **is the final output artifact of the project**, suitable for exploration.
+
+**How it works:**
+  - `build_network.py` constructs `Gc` and then calls `generate_interactive_graph(Gc)`
+  - it then outputs an interactive HTML file (that is stored at `Assets/Graphs/`)
+
+**Interactive graph preview:**
+![interactive graph](Assets/Images/interactive_graph_preview.png)
