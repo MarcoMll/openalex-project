@@ -192,11 +192,17 @@ Here is the visual representation of how the data changes step by step:
 ### Script: `build_networkx_graph.py`
 
 **Purpose:**
-Loads the weighted pairwise co-authorship edges (`edges.csv`) into a NetworkX undirected graph, extracts the largest connected component for analysis, prints basic graph diagnostics, reports the top-10 authors by degree and weighted degree (“strength”), and visualizes the largest component using a spring layout.
+Loads the weighted pairwise co-authorship edges (`edges.csv`) into a NetworkX undirected graph, then extracts and analyzes the largest connected component (LCC).
 
 **Outputs:**
 - Console summary (nodes/edges, component counts, top-10 degree, top-10 strength)
 - A Matplotlib window showing the spring-layout visualization of the largest component
 
-**Graph:**
-![Biggest component graph](Assets/Images/subgraph.png)
+**The original graph:** (all authors/edges produced by the pipeline)
+![original graph](Assets/Images/original_graph.png)
+
+**The largest-component graph:** (the induced subgraph of the LCC)
+![biggest component graph](Assets/Images/subgraph.png)
+
+> ℹ️ **Why we select the largest connected component:**
+> </br> The full co-authorship graph is fragmented into many disconnected components. This occurs naturally because some author groups never co-author with others within the institution-scoped dataset, resulting any network measures and visualizations become less interpretable on highly disconnected graphs.

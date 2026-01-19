@@ -9,7 +9,9 @@ P = get_paths()
 EDGES_CSV = P.EDGES_CSV
 SEED = 777
 
-GRAPH_IMG_PATH = P.IMAGES_DIR / "subgraph.png"
+GRAPH_IMG_PATH = P.IMAGES_DIR
+ORIGINAL_GRAPH_IMG_NAME = "original_graph.png"
+SUBGRAPH_IMG_NAME = "subgraph.png"
 
 def load_graph_from_edges_csv(path, max_edges: int = -1):
     graph = nx.Graph()
@@ -56,6 +58,21 @@ def get_top_n_strenghts(G, n):
     # NetworkX can compute it directly:
     return sorted(G.degree(weight="weight"), key=itemgetter(1), reverse=True)[:n]
 
+def save_graph_image(graph: nx.Graph, out_path, *, seed: int = 777, node_size: int = 40):
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    plt.figure(figsize=(14, 10))
+    pos = nx.spring_layout(graph, seed=seed)  # deterministic layout
+    nx.draw(
+        graph,
+        pos=pos,
+        node_size=node_size,
+        width=0.5,
+        with_labels=False,
+    )
+    plt.savefig(out_path, dpi=300, bbox_inches="tight")
+    plt.close()  # prevents figures from stacking up
+
 if __name__ == "__main__":
     G = load_graph_from_edges_csv(EDGES_CSV)
 
@@ -80,8 +97,8 @@ if __name__ == "__main__":
 
     nx.draw_spring(Gc, node_size= 40)
 
-    # saving image
-    plt.savefig(GRAPH_IMG_PATH, dpi=300, bbox_inches="tight")
+    # Save BOTH images
+    save_graph_image(G, GRAPH_IMG_PATH / ORIGINAL_GRAPH_IMG_NAME, seed=SEED, node_size=20)
+    save_graph_image(Gc, GRAPH_IMG_PATH / SUBGRAPH_IMG_NAME, seed=SEED, node_size=40)
 
     generate_interactive_graph(Gc, "interactive_graph.html") # converting to interactive
-    plt.show()
