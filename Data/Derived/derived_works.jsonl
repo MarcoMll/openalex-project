@@ -162,8 +162,8 @@
 {"work_id": "https://openalex.org/W4306768860", "authors": ["https://openalex.org/A5088235131", "https://openalex.org/A5002973430", "https://openalex.org/A5017097014", "https://openalex.org/A5073656007", "https://openalex.org/A5088617242"], "publication_year": 2022}
 {"work_id": "https://openalex.org/W3152696819", "authors": ["https://openalex.org/A5038379619", "https://openalex.org/A5001408988", "https://openalex.org/A5007915542"], "publication_year": 2021}
 {"work_id": "https://openalex.org/W4292075494", "authors": ["https://openalex.org/A5007088320", "https://openalex.org/A5002973430", "https://openalex.org/A5080671461"], "publication_year": 2022}
-{"work_id": "https://openalex.org/W4401483608", "authors": ["https://openalex.org/A5025027790", "https://openalex.org/A5087606057", "https://openalex.org/A5003571840"], "publication_year": 2024}
 {"work_id": "https://openalex.org/W4404958879", "authors": ["https://openalex.org/A5040973143", "https://openalex.org/A5030924885", "https://openalex.org/A5071929595", "https://openalex.org/A5008833108"], "publication_year": 2024}
+{"work_id": "https://openalex.org/W4401483608", "authors": ["https://openalex.org/A5025027790", "https://openalex.org/A5087606057", "https://openalex.org/A5003571840"], "publication_year": 2024}
 {"work_id": "https://openalex.org/W4401641061", "authors": ["https://openalex.org/A5004319715", "https://openalex.org/A5064682864"], "publication_year": 2024}
 {"work_id": "https://openalex.org/W4396778892", "authors": ["https://openalex.org/A5075214356", "https://openalex.org/A5008833108", "https://openalex.org/A5085426756", "https://openalex.org/A5068012955"], "publication_year": 2024}
 {"work_id": "https://openalex.org/W4394621202", "authors": ["https://openalex.org/A5088235131", "https://openalex.org/A5066397268", "https://openalex.org/A5068769199", "https://openalex.org/A5002973430"], "publication_year": 2024}
@@ -1355,6 +1355,7 @@
 {"work_id": "https://openalex.org/W7117356116", "authors": ["https://openalex.org/A5038379619", "https://openalex.org/A5001408988", "https://openalex.org/A5071886724", "https://openalex.org/A5038165321", "https://openalex.org/A5027853824", "https://openalex.org/A5039201290"], "publication_year": 2025}
 {"work_id": "https://openalex.org/W7117533562", "authors": ["https://openalex.org/A5004319715"], "publication_year": 2025}
 {"work_id": "https://openalex.org/W7124421855", "authors": ["https://openalex.org/A5075214356", "https://openalex.org/A5065978026", "https://openalex.org/A5120123547", "https://openalex.org/A5001372847", "https://openalex.org/A5022041874", "https://openalex.org/A5123182502", "https://openalex.org/A5115005296", "https://openalex.org/A5058688117", "https://openalex.org/A5123179002", "https://openalex.org/A5123210645", "https://openalex.org/A5123193833", "https://openalex.org/A5029872615", "https://openalex.org/A5022470178", "https://openalex.org/A5108900743", "https://openalex.org/A5008833108", "https://openalex.org/A5123178216"], "publication_year": 2026}
+{"work_id": "https://openalex.org/W7124652034", "authors": ["https://openalex.org/A5027476123", "https://openalex.org/A5024168071", "https://openalex.org/A5079712884", "https://openalex.org/A5003475273"], "publication_year": 2026}
 {"work_id": "https://openalex.org/W71660360", "authors": ["https://openalex.org/A5004648400"], "publication_year": 2013}
 {"work_id": "https://openalex.org/W72118881", "authors": ["https://openalex.org/A5004648400"], "publication_year": 2013}
 {"work_id": "https://openalex.org/W784880462", "authors": ["https://openalex.org/A5008661315"], "publication_year": 1975}
@@ -3144,6 +3145,7 @@
 {"work_id": "https://openalex.org/W7118586474", "authors": ["https://openalex.org/A5016296728", "https://openalex.org/A5020433988", "https://openalex.org/A5041843463"], "publication_year": 2026}
 {"work_id": "https://openalex.org/W7119380969", "authors": ["https://openalex.org/A5122109149", "https://openalex.org/A5020433988", "https://openalex.org/A5034331278"], "publication_year": null}
 {"work_id": "https://openalex.org/W7124122090", "authors": ["https://openalex.org/A5025492269"], "publication_year": 2025}
+{"work_id": "https://openalex.org/W7124545008", "authors": ["https://openalex.org/A5122109149", "https://openalex.org/A5020433988", "https://openalex.org/A5034331278"], "publication_year": 2026}
 {"work_id": "https://openalex.org/W74566901", "authors": ["https://openalex.org/A5049710354", "https://openalex.org/A5026242697", "https://openalex.org/A5085512766"], "publication_year": 2008}
 {"work_id": "https://openalex.org/W868800667", "authors": ["https://openalex.org/A5026242697"], "publication_year": 2004}
 {"work_id": "https://openalex.org/W892189355", "authors": ["https://openalex.org/A5025492269"], "publication_year": 2008}
@@ -8642,6 +8644,7 @@
 {"work_id": "https://openalex.org/W4404291694", "authors": ["https://openalex.org/A5046556237", "https://openalex.org/A5005314745", "https://openalex.org/A5080802028", "https://openalex.org/A5107665458"], "publication_year": 2024}
 {"work_id": "https://openalex.org/W4407262674", "authors": ["https://openalex.org/A5028537285", "https://openalex.org/A5101398899", "https://openalex.org/A5080439749", "https://openalex.org/A5080802028", "https://openalex.org/A5078046494"], "publication_year": 2025}
 {"work_id": "https://openalex.org/W4281565713", "authors": ["https://openalex.org/A5070666377", "https://openalex.org/A5061918183", "https://openalex.org/A5062201456", "https://openalex.org/A5112630137"], "publication_year": 2022}
+{"work_id": "https://openalex.org/W4403088109", "authors": ["https://openalex.org/A5024212389", "https://openalex.org/A5052111985", "https://openalex.org/A5035359467", "https://openalex.org/A5004816356", "https://openalex.org/A5080802028"], "publication_year": 2024}
 {"work_id": "https://openalex.org/W2994790837", "authors": ["https://openalex.org/A5077965593"], "publication_year": 2019}
 {"work_id": "https://openalex.org/W4396894871", "authors": ["https://openalex.org/A5075257678"], "publication_year": 2024}
 {"work_id": "https://openalex.org/W2032465089", "authors": ["https://openalex.org/A5077965593"], "publication_year": 2000}
@@ -8857,7 +8860,6 @@
 {"work_id": "https://openalex.org/W3015252059", "authors": ["https://openalex.org/A5077153249"], "publication_year": 2020}
 {"work_id": "https://openalex.org/W4214532075", "authors": ["https://openalex.org/A5010285399", "https://openalex.org/A5101969071", "https://openalex.org/A5080802028"], "publication_year": 2022}
 {"work_id": "https://openalex.org/W4400592224", "authors": ["https://openalex.org/A5051101790", "https://openalex.org/A5079660069"], "publication_year": 2024}
-{"work_id": "https://openalex.org/W4403088109", "authors": ["https://openalex.org/A5024212389", "https://openalex.org/A5052111985", "https://openalex.org/A5035359467", "https://openalex.org/A5004816356", "https://openalex.org/A5080802028"], "publication_year": 2024}
 {"work_id": "https://openalex.org/W4409901276", "authors": ["https://openalex.org/A5051101790", "https://openalex.org/A5090147268", "https://openalex.org/A5079660069"], "publication_year": 2025}
 {"work_id": "https://openalex.org/W4412420940", "authors": ["https://openalex.org/A5010285399", "https://openalex.org/A5064234855", "https://openalex.org/A5080802028"], "publication_year": 2025}
 {"work_id": "https://openalex.org/W4412827183", "authors": ["https://openalex.org/A5111304713", "https://openalex.org/A5061461521", "https://openalex.org/A5010285399", "https://openalex.org/A5080802028"], "publication_year": 2025}

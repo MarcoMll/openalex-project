@@ -16,7 +16,7 @@ Repository structure
     - `derived_works.jsonl`
     - `hyperedges.jsonl`
     - `edges.csv`
-- `Scripts`
+- `Scripts/`
   - `fetch_raw_data.py`
   - `derive_data.py`
   - `build_network.py`
@@ -181,9 +181,9 @@ Here is the visual representation of how the data changes step by step:
 
 | author_id_1                          | author_id_2                          | weight |
 |--------------------------------------|--------------------------------------|--------|
-| https://openalex.org/A5000069300     | https://openalex.org/A5000069300     | 4      |
-| https://openalex.org/A5000252858     | https://openalex.org/A5000252858     | 4      |
-| https://openalex.org/A5000252858     | https://openalex.org/A5000252858     | 12     |
+| https://openalex.org/A5000069300     | https://openalex.org/A5104728998     | 4      |
+| https://openalex.org/A5000252858     | https://openalex.org/A5001719110     | 4      |
+| https://openalex.org/A5000252858     | https://openalex.org/A5008236776     | 12     |
 
 ---
 

@@ -30,6 +30,7 @@ class ProjectPaths:
 
     ASSETS_DIR: Path
     IMAGES_DIR: Path
+    GRAPHS_DIR: Path
 
 
 def get_paths(project_root: Path | None = None) -> ProjectPaths:
@@ -39,6 +40,7 @@ def get_paths(project_root: Path | None = None) -> ProjectPaths:
     derived = data / "Derived"
     assets = root / "Assets"
     images = assets / "Images"
+    graphs = assets / "Graphs"
 
     return ProjectPaths(
         ROOT=root,
@@ -47,6 +49,7 @@ def get_paths(project_root: Path | None = None) -> ProjectPaths:
         DERIVED_DIR=derived,
         ASSETS_DIR=assets,
         IMAGES_DIR=images,
+        GRAPHS_DIR=graphs,
         RAW_AUTHORS=raw / "raw_authors.jsonl",
         RAW_WORKS=raw / "raw_works.jsonl",
         DERIVED_WORKS=derived / "derived_works.jsonl",
