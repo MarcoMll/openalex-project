@@ -8,6 +8,13 @@ Developers:
 This project constructs an institution-scoped co-authorship network from OpenAlex data. The final artifact is a weighted, undirected graph where each node is an OpenAlex author ID and each edge weight equals the number of works co-authored by that author pair, restricted to works that include at least two institution authors.
 
 Repository structure
+- `Assets/`
+  - `Graphs/`
+    - `interactive_graph.html`
+  - `Images/`
+    - `interactive_graph_preview.png`
+    - `original_graph.png`
+    - `subgraph.png`
 - `Data/`
   - `Raw/`
     - `raw_authors.jsonl`
@@ -31,6 +38,8 @@ Requirements:
   - `networkx`
   - `matplotlib`
   - `pyvis`
+  - `selenium`
+  - `webdriver-manager`
 
 Minimal installation:
 ```bash
