@@ -1,22 +1,50 @@
-import json
 import csv
-#dict subclass that calls a factory function to supply missing value
-from collections import defaultdict
-# generate all possible combinations of a specified length from a given iterable
-from itertools import combinations
-import os
+import networkx as nx
+from utils.project_paths import get_paths
+import matplotlib.pyplot as plt
 
-#Configurations/Paths
-#Input file paths
-#Will add the path name once in the project
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "processed") #Will need to be changed once the data has been processed location wise
-#The Following Might need to be changed based on the final data file names
-LUISS_AUTHORS_FILE = os.path.join(DATA_DIR, "luiss_authors.csv") #Loading the set of LUISS author IDs
-WORKS_FILE = os.path.join(DATA_DIR, "works_min.json") #Loading the works data file 
+P = get_paths()
+EDGES_CSV = P.EDGES_CSV
 
-#Output file paths
-#New JSON Lines file where each line is one hyperedge
-HYPEREDGES_FILE = os.path.join(DATA_DIR, "hyperedges.jsonl") #Output file for hyperedges
-#This is a CSV with columns author1, author2, weight
-PAIRWISE_EDGES_FILE = os.path.join(DATA_DIR, "pairwise_edges.csv") #Output file for pairwise edges
+def load_graph_from_edges_csv(path, max_edges: int = -1):
+    graph = nx.Graph()
+    nodes_amount = 0
 
+    with path.open("r", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+
+        for row in reader:
+
+            if max_edges != -1 and nodes_amount >= max_edges:
+                break
+
+            u = row["author_id_1"]
+            v = row["author_id_2"]
+            w = float(row["weight"])
+
+            graph.add_edge(u, v, weight=w)
+            nodes_amount += 1
+
+    return graph
+
+edges = [(1, 2, 30), (2, 3, 4), (1, 3, 100), (1, 4, 2), (1, 5, 400), (2, 5, 1), (5, 3, 300), (4, 6, 10),
+         (4, 7, 50), (8, 9, 100), (8, 4, 4)]
+def create_graph():
+    graph = nx.Graph()
+    for edge in edges:
+        u = edge[0]
+        v = edge[1]
+        weight = edge[2]
+        graph.add_edge(u, v, weight=weight)
+    return graph
+
+if __name__ == "__main__":
+    G = load_graph_from_edges_csv(EDGES_CSV)
+    #G = create_graph()
+    print("nodes:", G.number_of_nodes())
+    print("edges:", G.number_of_edges())
+    print(f"self loops: {nx.number_of_selfloops(G)}")
+
+    nx.draw_spring(G, with_labels=False)
+    #print(edges)
+    plt.show()
