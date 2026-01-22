@@ -46,17 +46,17 @@ def find_biggest_component(graph: nx.Graph):
 def get_subgraph_from_component_nodes(graph: nx.Graph, components: set[str]):
     return graph.subgraph(components).copy()
 
-def get_top_n_degrees(graph, n):
-    pairs = G.degree()
+def get_top_n_degrees(graph: nx.Graph, n: int):
+    pairs = graph.degree()
     sorted_pairs = sorted(pairs, key=itemgetter(1), reverse=True)[:n] # this is hardcoded
                                                                       # idk yet how to do it in another way
     return sorted_pairs
 
 # chatgpt made this, I don't really know what is going on here yet
-def get_top_n_strenghts(G, n):
+def get_top_n_strenghts(graph: nx.Graph, n: int):
     # "strength" = weighted degree (sum of edge weights)
     # NetworkX can compute it directly:
-    return sorted(G.degree(weight="weight"), key=itemgetter(1), reverse=True)[:n]
+    return sorted(graph.degree(weight="weight"), key=itemgetter(1), reverse=True)[:n]
 
 def save_graph_image(graph: nx.Graph, out_path, *, seed: int = 777, node_size: int = 40):
     out_path.parent.mkdir(parents=True, exist_ok=True)

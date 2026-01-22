@@ -38,7 +38,7 @@ def fetch_all_last_known_authors(institution_id: str = LUISS_INSTITUTION_ID, pat
     authors_query = (
         Authors()
         .filter(**{"last_known_institutions.id": institution_id})
-        .select(["id"])
+        .select(["id", "display_name"])
     )
 
     save_data(authors_query, path)
