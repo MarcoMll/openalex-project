@@ -8,3 +8,4 @@
 
 # cache
 .pyc
+__pycache__/
