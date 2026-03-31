@@ -61,7 +61,7 @@ def get_top_n_strenghts(graph: nx.Graph, n: int):
     # NetworkX can compute it directly:
     return sorted(graph.degree(weight="weight"), key=itemgetter(1), reverse=True)[:n]
 
-def save_graph_image(graph: nx.Graph, out_path, *, seed: int = SEED, node_size: int = 40, node_colors: list = None):
+def save_graph_image(graph: nx.Graph, out_path, seed: int = SEED, node_size: int = 40, node_colors: list = None):
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     plt.figure(figsize=(14, 10))
@@ -83,12 +83,17 @@ def save_graph_image(graph: nx.Graph, out_path, *, seed: int = SEED, node_size: 
     plt.savefig(out_path, dpi=300, bbox_inches="tight")
     plt.close()  # prevents figures from stacking up
 
-def split_graph_by_color(graph: nx.Graph, partition: dict):
+def split_graph_by_color(graph: nx.Graph, partition: dict, custom_colors: list = None):
     node_to_color = {}
 
     for i, community_name in enumerate(partition):
         for node in partition[community_name]["nodes"]:
-            node_to_color[node] = i
+            if custom_colors is None:
+                node_to_color[node] = i
+            else:
+                if custom_colors is not None and len(custom_colors) < len(partition):
+                    raise ValueError("Not enough colors for all communities.")
+                node_to_color[node] = custom_colors[i]
 
     node_colors = [node_to_color.get(node, -1) for node in graph.nodes()] # safe fallback for color if for some reason node in node_to_color is not in graph.nodes()
     return node_colors
