@@ -1,5 +1,6 @@
 # IDE
 .idea/
+.venv/
 
 # macOS
 .DS_Store
