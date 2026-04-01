@@ -123,7 +123,7 @@ def build_network_graph():
     Gc = get_subgraph_from_component_nodes(G, component_nodes)
     Gc_community_colors = split_graph_by_color(Gc, find_communities(Gc, "Newman")[2])
 
-    Gc_hubs = detect_hubs(Gc, "degree", "percentile", 95)
+    Gc_hubs = detect_hubs(Gc, "degree", 95)
 
     hubs_list = []
     for key, value in Gc_hubs.items():
