@@ -13,6 +13,10 @@ def detect_betweenness_centrality(graph, top_percent=5.0):
 
     G = graph
     nodes = G.nodes()
+    
+    if len(nodes) < 3:
+        raise ValueError("Graph must have at least 3 nodes to compute betweenness centrality.") # Not enough nodes to compute betweenness centrality     
+    
     seen_pairs = set()
     betweenness = {node: 0.0 for node in G.nodes()}
     num_nodes = G.number_of_nodes()
