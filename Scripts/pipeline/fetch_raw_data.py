@@ -48,7 +48,7 @@ def fetch_authors_batch_works(batch):
     return (
         Works()
         .filter(**{"authorships.author.id": or_value})
-        .select(["id", "publication_year", "authorships"])
+        .select(["id", "publication_year", "authorships", "topics", "keywords", "primary_topic"])
     )
 
 def fetch_institution_works(path: Path = WORKS_PATH):
