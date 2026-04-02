@@ -1,10 +1,10 @@
 import csv
-from operator import itemgetter
 import networkx as nx
 import matplotlib.pyplot as plt
 from utils.project_paths import get_paths
 from Scripts.analytics.community_detection import find_communities
 from Scripts.analytics.hub_detection import detect_hubs
+from Scripts.analytics.metrics.metrics_calculator import *
 
 P = get_paths()
 EDGES_CSV = P.EDGES_CSV
@@ -12,9 +12,9 @@ SEED = 777
 
 GRAPH_IMG_PATH = P.IMAGES_DIR
 ORIGINAL_GRAPH_IMG_NAME = "original_graph.png"
-SUBGRAPH_IMG_NAME = "subgraph.png"
-COMMUNITY_SUBGRAPH_IMG_NAME = "community_subgraph.png"
-HUBS_SUBGRAPH_IMG_NAME = "hubs_subgraph.png"
+SUBGRAPH_IMG_NAME = "largest_connected_component_graph.png"
+COMMUNITY_SUBGRAPH_IMG_NAME = "lcc_community_graph.png"
+HUBS_SUBGRAPH_IMG_NAME = "lcc_hubs_graph.png"
 INTERACTIVE_GRAPH_NAME = "interactive_graph.html"
 
 def load_graph_from_edges_csv(path = EDGES_CSV, max_edges: int = -1):
@@ -38,7 +38,7 @@ def load_graph_from_edges_csv(path = EDGES_CSV, max_edges: int = -1):
 
     return graph
 
-def find_biggest_component(graph: nx.Graph):
+def find_largest_connected_component(graph: nx.Graph):
     components = nx.connected_components(graph)
 
     if graph.number_of_nodes() == 0:
@@ -49,18 +49,6 @@ def find_biggest_component(graph: nx.Graph):
 
 def get_subgraph_from_component_nodes(graph: nx.Graph, components: set[str]):
     return graph.subgraph(components).copy()
-
-def get_top_n_degrees(graph: nx.Graph, n: int):
-    pairs = graph.degree()
-    sorted_pairs = sorted(pairs, key=itemgetter(1), reverse=True)[:n] # this is hardcoded
-                                                                      # idk yet how to do it in another way
-    return sorted_pairs
-
-# chatgpt made this, I don't really know what is going on here yet
-def get_top_n_strenghts(graph: nx.Graph, n: int):
-    # "strength" = weighted degree (sum of edge weights)
-    # NetworkX can compute it directly:
-    return sorted(graph.degree(weight="weight"), key=itemgetter(1), reverse=True)[:n]
 
 def save_graph_image(graph: nx.Graph, out_path, seed: int = SEED, node_size: int = 40, node_colors: list = None):
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -117,41 +105,40 @@ def remove_nodes_from_list(node_ids_to_remove: list, target_list: list):
     return temp_list
 
 def build_network_graph():
-    G = load_graph_from_edges_csv(EDGES_CSV)
+    base_graph = load_graph_from_edges_csv(EDGES_CSV)
 
-    component_nodes = find_biggest_component(G)
-    Gc = get_subgraph_from_component_nodes(G, component_nodes)
-    Gc_community_colors = split_graph_by_color(Gc, find_communities(Gc, "Newman")[2])
+    largest_component_nodes = find_largest_connected_component(base_graph)
+    lcc_subgraph = get_subgraph_from_component_nodes(base_graph, largest_component_nodes)
 
-    Gc_hubs = detect_hubs(Gc, "degree", 95)
+    lcc_hubs = list(detect_hubs(lcc_subgraph, "degree", 95).keys())
+    nodes_without_hubs = remove_nodes_from_list(lcc_hubs, list(lcc_subgraph.nodes()))
 
-    hubs_list = []
-    for key, value in Gc_hubs.items():
-        hubs_list.append(key)
-
-    nodes_list = list(Gc.nodes())
-    nodes_list = remove_nodes_from_list(hubs_list, nodes_list)
+    print(f"Density: {compute_graph_density(lcc_subgraph)}"
+          f"\nWeighted density: {compute_graph_weighted_density(lcc_subgraph)}"
+          f"\nAvg normalized strength of edges: {compute_average_normalized_strength_of_edges(lcc_subgraph)}")
 
     final_dict = {
-        "nodes_partition": {
-            "nodes": nodes_list
+        "ordinary_nodes": {
+            "nodes": nodes_without_hubs
         },
-        "hubs_partition": {
-            "nodes": hubs_list
+        "hubs": {
+            "nodes": lcc_hubs
         }
     }
 
-    Gc_hubs_colors = split_graph_by_color(Gc, final_dict, [0, 6])
+    lcc_community_colors = split_graph_by_color(lcc_subgraph, find_communities(lcc_subgraph, "Newman")[2])
+    lcc_hub_colors = split_graph_by_color(lcc_subgraph, final_dict, [0, 6])
 
-    save_graph_image(G, GRAPH_IMG_PATH / ORIGINAL_GRAPH_IMG_NAME, seed=SEED, node_size=20)
-    save_graph_image(Gc, GRAPH_IMG_PATH / SUBGRAPH_IMG_NAME, seed=SEED, node_size=40)
-    save_graph_image(Gc, GRAPH_IMG_PATH / COMMUNITY_SUBGRAPH_IMG_NAME, seed=SEED,
-                     node_size=40, node_colors=Gc_community_colors)
-    save_graph_image(Gc, GRAPH_IMG_PATH / HUBS_SUBGRAPH_IMG_NAME, seed=SEED,
-                     node_size=40, node_colors=Gc_hubs_colors)
+    save_graph_image(base_graph, GRAPH_IMG_PATH / ORIGINAL_GRAPH_IMG_NAME, seed=SEED, node_size=20)
+    save_graph_image(lcc_subgraph, GRAPH_IMG_PATH / SUBGRAPH_IMG_NAME, seed=SEED, node_size=40)
+    save_graph_image(lcc_subgraph, GRAPH_IMG_PATH / COMMUNITY_SUBGRAPH_IMG_NAME, seed=SEED,
+                     node_size=40, node_colors=lcc_community_colors)
+    save_graph_image(lcc_subgraph, GRAPH_IMG_PATH / HUBS_SUBGRAPH_IMG_NAME, seed=SEED,
+                     node_size=40, node_colors=lcc_hub_colors)
 
-    print("Building network graph is done.")
+    print("Building graphs completed.")
 
     # generate_interactive_graph(Gc, INTERACTIVE_GRAPH_NAME) # converting to interactive
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
+    build_network_graph()
