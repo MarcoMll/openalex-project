@@ -54,7 +54,7 @@ def derive_raw_works(raw_works_path: Path = RAW_WORKS_PATH, derived_works_path: 
             year = work.get("publication_year")
             authorships = work.get("authorships") or []
             raw_topics = work.get("topics") or []
-            raw_primary_topic = work.get("primary_topic")
+            # raw_primary_topic = work.get("topics") or []
             raw_keywords = work.get("keywords") or []
 
             author_ids_list = []
@@ -95,21 +95,27 @@ def derive_raw_works(raw_works_path: Path = RAW_WORKS_PATH, derived_works_path: 
                         seen_keywords.add(name)
                         keywords.append(name)
 
-            # keep only primary topic domain display name
-            primary_topic_domain = None
-            if isinstance(raw_primary_topic, dict):
-                domain = raw_primary_topic.get("domain")
-                if isinstance(domain, dict):
+            topic_domain_names = []
+            seen_domains = set()
+
+            if isinstance(raw_topics, list):
+                for t in raw_topics:
+                    if not isinstance(t, dict):
+                        continue
+                    domain = t.get("domain") or {}
+                    if not isinstance(domain, dict):
+                        continue
                     dname = domain.get("display_name")
-                    if isinstance(dname, str) and dname:
-                        primary_topic_domain = dname
+                    if isinstance(dname, str) and dname and dname not in seen_domains:
+                        seen_domains.add(dname)
+                        topic_domain_names.append(dname)
 
             out_obj = {
                 "work_id": work_id,
                 "authors": author_ids_list,
                 "publication_year": year,
                 "topics": topics,
-                "primary_topic": primary_topic_domain,
+                "domain": topic_domain_names,
                 "keywords": keywords,
             }
             fout.write(json.dumps(out_obj, ensure_ascii=False) + "\n")
@@ -134,7 +140,7 @@ def derive_hyperedges(hyperedges_path: Path = HYPEREDGES_PATH, derived_data_path
             author_ids = work.get("authors")
             publication_year = work.get("publication_year")
             topics = work.get("topics") or []
-            primary_topic_domain = work.get("primary_topic_domain")
+            domain = work.get("domain") or []
             keywords = work.get("keywords") or []
 
             if not isinstance(work_id, str) or not work_id: # basic validation
@@ -169,7 +175,7 @@ def derive_hyperedges(hyperedges_path: Path = HYPEREDGES_PATH, derived_data_path
                 "institution_author_count": len(unique_institution_authors_on_work),
                 "publication_year": publication_year,
                 "topics": topics,
-                "primary_topic_domain": primary_topic_domain,
+                "domain": domain,
                 "keywords": keywords,
             }
 
