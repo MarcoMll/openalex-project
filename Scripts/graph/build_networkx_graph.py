@@ -3,6 +3,8 @@ import json
 from collections.abc import Sequence
 import networkx as nx
 import matplotlib.pyplot as plt
+
+from utils.interactive_graph_converter import generate_interactive_graph
 from utils.project_paths import get_paths
 from Scripts.analytics.community_detection import find_communities
 from Scripts.analytics.hub_detection import detect_hubs
@@ -289,7 +291,7 @@ def build_network_graph():
 
     print("Building graphs completed.")
 
-    # generate_interactive_graph(Gc, INTERACTIVE_GRAPH_NAME) # converting to interactive
+    generate_interactive_graph(lcc_subgraph, INTERACTIVE_GRAPH_NAME) # converting to interactive
 
 if __name__ == "__main__":
     build_network_graph()
