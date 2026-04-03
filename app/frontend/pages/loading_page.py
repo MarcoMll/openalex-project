@@ -4,7 +4,11 @@ from pathlib import Path
 
 import streamlit as st
 
-from utils.spritesheet_animation import DEFAULT_FRAME_DURATION_MS, play_spritesheet_animation
+ROOT_DIR = Path(__file__).resolve().parents[3]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from utils.spritesheet_animation import play_spritesheet_animation
 
 
 def _image_to_data_uri(path: Path) -> str:
@@ -96,9 +100,6 @@ def render_loading_page() -> None:
     frontend_dir = Path(__file__).resolve().parents[1]
     project_root = app_dir.parent
     assets_gui_dir = project_root / "Assets" / "gui"
-
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
 
     pipeline_config_data = st.session_state.get("pipeline_config")
     if not pipeline_config_data:

@@ -4,10 +4,13 @@ from pathlib import Path
 
 import streamlit as st
 
+ROOT_DIR = Path(__file__).resolve().parents[3]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 from utils.spritesheet_animation import play_spritesheet_animation
 
 
-ROOT_DIR = Path(__file__).resolve().parents[3]
 SCHOLARNET_REPORT_PATH = ROOT_DIR / "Data" / "Analytics" / "scholarnet_report.json"
 
 
@@ -69,9 +72,6 @@ def _render_footer_logo(logo_uri: str) -> None:
 
 
 def _run_report_reconstruction(report_bytes: bytes) -> None:
-    if str(ROOT_DIR) not in sys.path:
-        sys.path.insert(0, str(ROOT_DIR))
-
     from Scripts.graph.load_graphs import load_graphs
 
     st.session_state["report_loading_started"] = True
