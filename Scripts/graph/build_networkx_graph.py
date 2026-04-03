@@ -294,4 +294,9 @@ def build_network_graph():
     generate_interactive_graph(lcc_subgraph, INTERACTIVE_GRAPH_NAME) # converting to interactive
 
 if __name__ == "__main__":
-    build_network_graph()
+    base_graph = load_graph_from_edges_csv(EDGES_CSV)
+
+    largest_component_nodes = find_largest_connected_component(base_graph)
+    lcc_subgraph = get_subgraph_from_component_nodes(base_graph, largest_component_nodes)
+
+    generate_interactive_graph(lcc_subgraph, INTERACTIVE_GRAPH_NAME)  # converting to interactive

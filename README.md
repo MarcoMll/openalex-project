@@ -12,7 +12,6 @@ Repository structure
   - `Graphs/`
     - `interactive_graph.html`
   - `Images/`
-    - `interactive_graph_preview.png`
     - `original_graph.png`
     - `subgraph.png`
 - `Data/`
@@ -38,8 +37,6 @@ Requirements:
   - `networkx`
   - `matplotlib`
   - `pyvis`
-  - `selenium`
-  - `webdriver-manager`
 
 Minimal installation:
 ```bash
@@ -222,6 +219,3 @@ Converts a NetworkX graph (in our case is the biggest_component subgraph) into a
 **How it works:**
   - `build_network.py` constructs `Gc` and then calls `generate_interactive_graph(Gc)`
   - it then outputs an interactive HTML file (that is stored at `Assets/Graphs/`)
-
-**Interactive graph preview:**
-![interactive graph](Assets/Images/interactive_graph_preview.png)

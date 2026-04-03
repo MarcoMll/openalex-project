@@ -26,6 +26,7 @@
 .st-key-nav_original button,
 .st-key-nav_lcc button,
 .st-key-nav_overall button,
+.st-key-nav_interactive button,
 .st-key-nav_export_report button {
   width: 100%;
   border-radius: 12px;
@@ -54,6 +55,10 @@
   background-image: url("__ANALYTICS_ICON_URI__");
 }
 
+.st-key-nav_interactive button {
+  background-image: url("__INTERACTIVE_ICON_URI__");
+}
+
 .st-key-nav_export_report button {
   background-image: url("__EXPORT_REPORT_ICON_URI__");
 }
@@ -61,6 +66,7 @@
 .st-key-nav_original button:hover,
 .st-key-nav_lcc button:hover,
 .st-key-nav_overall button:hover,
+.st-key-nav_interactive button:hover,
 .st-key-nav_export_report button:hover {
   border: none;
   background-color: #c3c9cf;
