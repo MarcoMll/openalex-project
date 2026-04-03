@@ -4,3 +4,4 @@ pyalex==0.19
 pyvis==0.3.2
 selenium==4.40.0
 webdriver-manager==4.0.2
+streamlit==1.56.0

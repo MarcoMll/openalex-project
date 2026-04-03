@@ -1,0 +1,89 @@
+.stApp {
+    background-color: #fffbf0;
+}
+
+.block-container {
+    max-width: 1200px;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+.gradient-card {
+    width: min(100%, 500px);
+    margin-right: auto;
+    aspect-ratio: 3 / 4;
+    border-radius: 28px;
+    background-image: url("__GRADIENT_URI__");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+}
+
+.gradient-logo {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+}
+
+.gradient-text-container {
+    position: absolute;
+    left: 24px;
+    bottom: 40px;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 85%;
+}
+
+.gradient-text-kicker {
+    margin: 0 0 10px;
+    font-size: __KICKER_FONT_SIZE_PX__px !important;
+    line-height: 1.2;
+    font-weight: __KICKER_FONT_WEIGHT__ !important;
+}
+
+.gradient-text-title {
+    margin: 0;
+    font-size: __TITLE_FONT_SIZE_PX__px !important;
+    line-height: 1.15;
+    font-weight: __TITLE_FONT_WEIGHT__ !important;
+}
+
+div.stButton > button {
+    width: 100%;
+    height: 48px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: none;
+    background: #22c55e;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+div.stButton > button:hover {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.or-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0 14px;
+    color: #6b7280;
+    font-size: 14px;
+    text-transform: lowercase;
+}
+
+.or-divider::before,
+.or-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #d1d5db;
+}

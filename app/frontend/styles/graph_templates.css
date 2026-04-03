@@ -1,0 +1,29 @@
+.graph-kpi-card {
+  border: 1px solid #e9edf2;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 14px 16px;
+  min-height: 100px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.graph-kpi-title {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #7a8697;
+  font-weight: 600;
+}
+
+.graph-kpi-value {
+  margin: 8px 0 0 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #202939;
+  line-height: 1.2;
+}
+
+.graph-section-divider {
+  border: 0;
+  border-top: 1px solid #e7ebf1;
+  margin: 28px 0 20px 0;
+}
