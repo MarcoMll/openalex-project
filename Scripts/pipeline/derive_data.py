@@ -53,6 +53,8 @@ def derive_raw_works(raw_works_path: Path = RAW_WORKS_PATH, derived_works_path: 
             work_id = work.get("id")
             year = work.get("publication_year")
             authorships = work.get("authorships") or []
+            raw_topics = work.get("topics") or []
+            raw_keywords = work.get("keywords") or []
 
             author_ids_list = []
             for authorship in authorships:
@@ -68,10 +70,52 @@ def derive_raw_works(raw_works_path: Path = RAW_WORKS_PATH, derived_works_path: 
             if not isinstance(work_id, str) or not work_id:
                 continue
 
+             # keep only topic display names
+            topics = []
+            seen_topics = set()
+            if isinstance(raw_topics, list):
+                for t in raw_topics:
+                    if not isinstance(t, dict):
+                        continue
+                    name = t.get("display_name")
+                    if isinstance(name, str) and name and name not in seen_topics:
+                        seen_topics.add(name)
+                        topics.append(name)
+            
+            # keep only keyword display names
+            keywords = []
+            seen_keywords = set()
+            if isinstance(raw_keywords, list):
+                for k in raw_keywords:
+                    if not isinstance(k, dict):
+                        continue
+                    name = k.get("display_name")
+                    if isinstance(name, str) and name and name not in seen_keywords:
+                        seen_keywords.add(name)
+                        keywords.append(name)
+
+            topic_domain_names = []
+            seen_domains = set()
+
+            if isinstance(raw_topics, list):
+                for t in raw_topics:
+                    if not isinstance(t, dict):
+                        continue
+                    domain = t.get("domain") or {}
+                    if not isinstance(domain, dict):
+                        continue
+                    dname = domain.get("display_name")
+                    if isinstance(dname, str) and dname and dname not in seen_domains:
+                        seen_domains.add(dname)
+                        topic_domain_names.append(dname)
+
             out_obj = {
                 "work_id": work_id,
                 "authors": author_ids_list,
                 "publication_year": year,
+                "topics": topics,
+                "domain": topic_domain_names,
+                "keywords": keywords
             }
             fout.write(json.dumps(out_obj, ensure_ascii=False) + "\n")
 
@@ -94,6 +138,9 @@ def derive_hyperedges(hyperedges_path: Path = HYPEREDGES_PATH, derived_data_path
             work_id = work.get("work_id")
             author_ids = work.get("authors")
             publication_year = work.get("publication_year")
+            topics = work.get("topics") or []
+            domain = work.get("domain") or []
+            keywords = work.get("keywords") or []
 
             if not isinstance(work_id, str) or not work_id: # basic validation
                 continue
@@ -125,6 +172,9 @@ def derive_hyperedges(hyperedges_path: Path = HYPEREDGES_PATH, derived_data_path
                 "institution_author_ids": unique_institution_authors_on_work,
                 "institution_author_count": len(unique_institution_authors_on_work),
                 "publication_year": publication_year,
+                "topics": topics,
+                "domain": domain,
+                "keywords": keywords,
             }
 
             hyperedges_jsonl.write(json.dumps(hyperedge_record, ensure_ascii=False) + "\n")
