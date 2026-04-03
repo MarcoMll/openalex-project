@@ -54,7 +54,7 @@ def derive_raw_works(raw_works_path: Path = RAW_WORKS_PATH, derived_works_path: 
             year = work.get("publication_year")
             authorships = work.get("authorships") or []
             raw_topics = work.get("topics") or []
-            raw_keywords = work.get("keywords") or []
+            keywords = work.get("keywords") or []
 
             author_ids_list = []
             for authorship in authorships:
@@ -82,17 +82,6 @@ def derive_raw_works(raw_works_path: Path = RAW_WORKS_PATH, derived_works_path: 
                         seen_topics.add(name)
                         topics.append(name)
             
-            # keep only keyword display names
-            keywords = []
-            seen_keywords = set()
-            if isinstance(raw_keywords, list):
-                for k in raw_keywords:
-                    if not isinstance(k, dict):
-                        continue
-                    name = k.get("display_name")
-                    if isinstance(name, str) and name and name not in seen_keywords:
-                        seen_keywords.add(name)
-                        keywords.append(name)
 
             topic_domain_names = []
             seen_domains = set()

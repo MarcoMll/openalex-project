@@ -42,11 +42,51 @@ def fetch_all_last_known_authors(institution_id: str = LUISS_INSTITUTION_ID, pat
 
 def fetch_authors_batch_works(batch):
     or_value = "|".join(batch)
-    return (
+
+    base_query = (
         Works()
         .filter(**{"authorships.author.id": or_value})
         .select(["id", "publication_year", "authorships", "topics", "keywords"])
     )
+
+    def compact_work(entry):
+        return {
+            "id": entry.get("id"),
+            "publication_year": entry.get("publication_year"),
+            "authorships": [
+                {
+                    "author": {
+                        "id": (a.get("author") or {}).get("id"),
+                        "display_name": (a.get("author") or {}).get("display_name"),
+                    }
+                }
+                for a in entry.get("authorships", [])
+                if (a.get("author") or {}).get("id")
+            ],
+            "topics": [
+                {
+                    "id": t.get("id"),
+                    "display_name": t.get("display_name"),
+                    "domain": {
+                        "display_name": (t.get("domain") or {}).get("display_name")
+                    },
+                }
+                for t in entry.get("topics", [])
+                if t.get("id")
+            ],
+            "keywords": [
+                {"display_name": k.get("display_name")}
+                for k in entry.get("keywords", [])
+                if k.get("display_name")
+            ],
+        }
+
+    class _CompactQuery:
+        def paginate(self, per_page=200, n_max=None):
+            for page in base_query.paginate(per_page=per_page, n_max=n_max):
+                yield [compact_work(entry) for entry in page]
+
+    return _CompactQuery()
 
 def fetch_institution_works(path: Path = WORKS_PATH):
     author_ids = get_existing_ids(AUTHORS_PATH)
