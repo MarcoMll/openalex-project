@@ -54,7 +54,6 @@ def derive_raw_works(raw_works_path: Path = RAW_WORKS_PATH, derived_works_path: 
             year = work.get("publication_year")
             authorships = work.get("authorships") or []
             raw_topics = work.get("topics") or []
-            # raw_primary_topic = work.get("topics") or []
             raw_keywords = work.get("keywords") or []
 
             author_ids_list = []
@@ -70,8 +69,8 @@ def derive_raw_works(raw_works_path: Path = RAW_WORKS_PATH, derived_works_path: 
 
             if not isinstance(work_id, str) or not work_id:
                 continue
-            
-                # keep only topic display names
+
+             # keep only topic display names
             topics = []
             seen_topics = set()
             if isinstance(raw_topics, list):
@@ -116,7 +115,7 @@ def derive_raw_works(raw_works_path: Path = RAW_WORKS_PATH, derived_works_path: 
                 "publication_year": year,
                 "topics": topics,
                 "domain": topic_domain_names,
-                "keywords": keywords,
+                "keywords": keywords
             }
             fout.write(json.dumps(out_obj, ensure_ascii=False) + "\n")
 
@@ -166,7 +165,6 @@ def derive_hyperedges(hyperedges_path: Path = HYPEREDGES_PATH, derived_data_path
                 continue                                    # we skip it
 
             unique_institution_authors_on_work.sort()
-
 
             # building the hyperedge record we will write
             hyperedge_record = {

@@ -3,16 +3,13 @@ from __future__ import annotations
 import json
 
 from pathlib import Path
-from typing import Set
+from typing import Callable, Set
 from itertools import islice
 
 from pyalex import Authors, config, Works
 from utils.project_paths import get_paths # now acts as a single source of truth for paths
 
 LUISS_INSTITUTION_ID = "i56441308"
-config.email = "marcomalliani@gmail.com" # apparently by adding email it raises our per-second request limit
-                                         # by 10 times (from 1 to 10)
-config.api_key = "oICxPdw6eeP6UJGK6xtQB1"
 
 # all files-navigation logic moved to project_paths.py
 P = get_paths()
@@ -48,7 +45,7 @@ def fetch_authors_batch_works(batch):
     return (
         Works()
         .filter(**{"authorships.author.id": or_value})
-        .select(["id", "publication_year", "authorships", "topics", "keywords",])
+        .select(["id", "publication_year", "authorships", "topics", "keywords"])
     )
 
 def fetch_institution_works(path: Path = WORKS_PATH):
@@ -98,8 +95,20 @@ def save_data(query, out_path: Path, existing_ids: Set[str] = None):
             if lines:
                 file.write("\n".join(lines) + "\n")
 
-def fetch_raw_data_from_api(pipeline_config):
-    fetch_all_last_known_authors(institution_id= pipeline_config.institution_id)
+def fetch_raw_data_from_api(pipeline_config, on_status: Callable[[str], None] | None = None):
+    if pipeline_config.api_email:
+        config.email = pipeline_config.api_email
+    if pipeline_config.api_key:
+        config.api_key = pipeline_config.api_key
+
+    institution_id = (pipeline_config.institution_id or "").strip() or LUISS_INSTITUTION_ID
+
+    if on_status is not None:
+        on_status("Fetching authors")
+    fetch_all_last_known_authors(institution_id=institution_id)
+
+    if on_status is not None:
+        on_status("Fetching works")
     fetch_institution_works()
     print("Fetching done.")
 

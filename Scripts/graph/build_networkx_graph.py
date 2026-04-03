@@ -1,6 +1,10 @@
 import csv
+import json
+from collections.abc import Sequence
 import networkx as nx
 import matplotlib.pyplot as plt
+
+from utils.interactive_graph_converter import generate_interactive_graph
 from utils.project_paths import get_paths
 from Scripts.analytics.community_detection import find_communities
 from Scripts.analytics.hub_detection import detect_hubs
@@ -11,11 +15,26 @@ EDGES_CSV = P.EDGES_CSV
 SEED = 777
 
 GRAPH_IMG_PATH = P.IMAGES_DIR
-ORIGINAL_GRAPH_IMG_NAME = "original_graph.png"
-SUBGRAPH_IMG_NAME = "largest_connected_component_graph.png"
-COMMUNITY_SUBGRAPH_IMG_NAME = "lcc_community_graph.png"
-HUBS_SUBGRAPH_IMG_NAME = "lcc_hubs_graph.png"
+BASE_GRAPH_IMG_NAME = "base_graph.png"
+BASE_COMMUNITY_IMG_NAME = "base_graph_community.png"
+
+LCC_IMG_NAME = "largest_connected_component_graph.png"
+LCC_COMMUNITY_IMG_NAME = "lcc_community_graph.png"
+LCC_HUBS_IMG_NAME = "lcc_hubs_graph.png"
+
 INTERACTIVE_GRAPH_NAME = "interactive_graph.html"
+SCHOLARNET_REPORT_JSON_NAME = "scholarnet_report.json"
+HARDCODED_METRIC_VALUE = -1
+
+
+def _is_hex_color(value: str):
+    if not isinstance(value, str):
+        return False
+
+    if len(value) not in (7, 9) or not value.startswith("#"):
+        return False
+
+    return all(char in "0123456789abcdefABCDEF" for char in value[1:])
 
 def load_graph_from_edges_csv(path = EDGES_CSV, max_edges: int = -1):
     graph = nx.Graph()
@@ -58,13 +77,36 @@ def save_graph_image(graph: nx.Graph, out_path, seed: int = SEED, node_size: int
 
     color_map = None
     draw_kwargs = {}
-    if node_colors is not None:
+
+    if node_colors is None:
+        node_colors = "#63c791"
+    elif isinstance(node_colors, list) and all(_is_hex_color(c) for c in node_colors):
+        color_map = None
+
+        # Matplotlib expects either one color, or one color per node.
+        # If user passes a short hex palette, repeat it to match node count.
+        if len(node_colors) == 0:
+            raise ValueError("node_colors cannot be an empty hex color list.")
+        if len(node_colors) == 1:
+            node_colors = node_colors[0]
+        elif len(node_colors) != graph.number_of_nodes():
+            palette = node_colors
+            node_colors = [palette[i % len(palette)] for i, _ in enumerate(graph.nodes())]
+    else:
         color_map = plt.cm.tab20
-        # Treat numeric values as explicit tab20 indexes (0..19) instead of
-        # normalizing only by current min/max values (e.g. [0, 6] -> [0, 1]).
         if all(isinstance(c, (int, float)) for c in node_colors):
             draw_kwargs["vmin"] = 0
             draw_kwargs["vmax"] = 19
+
+    if (
+        isinstance(node_colors, Sequence)
+        and not isinstance(node_colors, (str, bytes))
+        and len(node_colors) not in (1, graph.number_of_nodes())
+    ):
+        raise ValueError(
+            f"node_colors must have length 1 or match graph nodes count ({graph.number_of_nodes()}); "
+            f"got {len(node_colors)}."
+        )
 
     nx.draw(
         graph,
@@ -104,18 +146,77 @@ def remove_nodes_from_list(node_ids_to_remove: list, target_list: list):
 
     return temp_list
 
+def build_graph_stats(
+    graph: nx.Graph,
+    number_of_communities: int = HARDCODED_METRIC_VALUE,
+    number_of_hubs: int = HARDCODED_METRIC_VALUE,
+    average_community_density: float = HARDCODED_METRIC_VALUE,
+    average_hub_degree: float = HARDCODED_METRIC_VALUE,
+):
+    average_degree, _ = compute_average_per_node(graph, "degree")
+    average_strength, _ = compute_average_per_node(graph, "strength")
+
+    return {
+        "total_nodes": graph.number_of_nodes(),
+        "average_degree": average_degree,
+        "average_strength": average_strength,
+        "density": compute_graph_density(graph),
+        "weighted_density": compute_graph_weighted_density(graph),
+        "average_normalized_strength_of_edges": compute_average_normalized_strength_of_edges(graph),
+        "number_of_communities": number_of_communities,
+        "number_of_hubs": number_of_hubs,
+        "average_community_density": average_community_density,
+        "average_hub_degree": average_hub_degree,
+    }
+
+def serialize_graph_for_reconstruction(
+    graph: nx.Graph,
+    seed: int,
+    node_sizes: dict,
+    communities_colors: list | None = None,
+    hubs_colors: list | None = None,
+):
+    edges = [
+        {"u": u, "v": v, "weight": data.get("weight", 1.0)}
+        for u, v, data in graph.edges(data=True)
+    ]
+
+    return {
+        "nodes": list(graph.nodes()),
+        "edges": edges,
+        "seed": seed,
+        "node_sizes": node_sizes,
+        "color_partitions": {
+            "communities": communities_colors if communities_colors is not None else [],
+            "hubs": hubs_colors if hubs_colors is not None else [],
+        },
+    }
+
 def build_network_graph():
     base_graph = load_graph_from_edges_csv(EDGES_CSV)
+
+    lcc_hubs_metric = "degree"
+    lcc_hubs_threshold = 95
 
     largest_component_nodes = find_largest_connected_component(base_graph)
     lcc_subgraph = get_subgraph_from_component_nodes(base_graph, largest_component_nodes)
 
-    lcc_hubs = list(detect_hubs(lcc_subgraph, "degree", 95).keys())
+    _, lcc_number_of_communities, lcc_partition = find_communities(lcc_subgraph, "Newman")
+
+    lcc_hubs = list(detect_hubs(lcc_subgraph, lcc_hubs_metric, lcc_hubs_threshold).keys())
     nodes_without_hubs = remove_nodes_from_list(lcc_hubs, list(lcc_subgraph.nodes()))
 
-    print(f"Density: {compute_graph_density(lcc_subgraph)}"
-          f"\nWeighted density: {compute_graph_weighted_density(lcc_subgraph)}"
-          f"\nAvg normalized strength of edges: {compute_average_normalized_strength_of_edges(lcc_subgraph)}")
+    bg_stats = build_graph_stats(base_graph)
+    lcc_stats = build_graph_stats(
+        lcc_subgraph,
+        number_of_communities=lcc_number_of_communities,
+        number_of_hubs=len(lcc_hubs),
+    )
+
+    scholarnet_report = {
+        "base_graph": bg_stats,
+        "lcc": lcc_stats,
+    }
 
     final_dict = {
         "ordinary_nodes": {
@@ -126,19 +227,71 @@ def build_network_graph():
         }
     }
 
-    lcc_community_colors = split_graph_by_color(lcc_subgraph, find_communities(lcc_subgraph, "Newman")[2])
-    lcc_hub_colors = split_graph_by_color(lcc_subgraph, final_dict, [0, 6])
+    #base_graph_community_colors = split_graph_by_color(base_graph, find_communities(base_graph, "Newman")[2])
 
-    save_graph_image(base_graph, GRAPH_IMG_PATH / ORIGINAL_GRAPH_IMG_NAME, seed=SEED, node_size=20)
-    save_graph_image(lcc_subgraph, GRAPH_IMG_PATH / SUBGRAPH_IMG_NAME, seed=SEED, node_size=40)
-    save_graph_image(lcc_subgraph, GRAPH_IMG_PATH / COMMUNITY_SUBGRAPH_IMG_NAME, seed=SEED,
-                     node_size=40, node_colors=lcc_community_colors)
-    save_graph_image(lcc_subgraph, GRAPH_IMG_PATH / HUBS_SUBGRAPH_IMG_NAME, seed=SEED,
-                     node_size=40, node_colors=lcc_hub_colors)
+    lcc_community_colors = split_graph_by_color(lcc_subgraph, lcc_partition)
+    lcc_hub_colors = split_graph_by_color(lcc_subgraph, final_dict, ["#63C791", "#C76399"])
+
+    scholarnet_report["base_graph"]["reconstruction_data"] = serialize_graph_for_reconstruction(
+        base_graph,
+        seed=SEED,
+        node_sizes={"default": 20},
+        communities_colors=[],
+        hubs_colors=[],
+    )
+    scholarnet_report["lcc"]["reconstruction_data"] = serialize_graph_for_reconstruction(
+        lcc_subgraph,
+        seed=SEED,
+        node_sizes={"default": 40, "communities": 40, "hubs": 40},
+        communities_colors=lcc_community_colors,
+        hubs_colors=lcc_hub_colors,
+    )
+
+    analytics_dir = P.DATA / "Analytics"
+    analytics_dir.mkdir(parents=True, exist_ok=True)
+    scholarnet_report_path = analytics_dir / SCHOLARNET_REPORT_JSON_NAME
+    with scholarnet_report_path.open("w", encoding="utf-8") as out_file:
+        json.dump(scholarnet_report, out_file, ensure_ascii=False, indent=2)
+
+    graph_render_plan = {
+        "base_graph": {
+            "graph": base_graph,
+            "image_name": BASE_GRAPH_IMG_NAME,
+            "node_size": 20,
+            "node_colors": None,
+        },
+        "lcc_graph": {
+            "graph": lcc_subgraph,
+            "image_name": LCC_IMG_NAME,
+            "node_size": 40,
+            "node_colors": None,
+        },
+        "lcc_community_graph": {
+            "graph": lcc_subgraph,
+            "image_name": LCC_COMMUNITY_IMG_NAME,
+            "node_size": 40,
+            "node_colors": lcc_community_colors,
+        },
+        "lcc_hubs_graph": {
+            "graph": lcc_subgraph,
+            "image_name": LCC_HUBS_IMG_NAME,
+            "node_size": 40,
+            "node_colors": lcc_hub_colors,
+        },
+    }
+
+    for graph_payload in graph_render_plan.values():
+        save_graph_image(
+            graph_payload["graph"],
+            GRAPH_IMG_PATH / graph_payload["image_name"],
+            seed=SEED,
+            node_size=graph_payload["node_size"],
+            node_colors=graph_payload["node_colors"],
+        )
 
     print("Building graphs completed.")
 
-    # generate_interactive_graph(Gc, INTERACTIVE_GRAPH_NAME) # converting to interactive
+    generate_interactive_graph(lcc_subgraph, INTERACTIVE_GRAPH_NAME) # converting to interactive
 
 if __name__ == "__main__":
     build_network_graph()

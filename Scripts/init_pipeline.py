@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from typing import Callable
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = Path(__file__).resolve().parent
@@ -20,13 +21,24 @@ class PipelineConfig:
     api_email: str
     api_key: str
 
-pipeline_config = PipelineConfig(
-    institution_id="i56441308",
-    api_email="marcomalliani@gmail.com",
-    api_key="oICxPdw6eeP6UJGK6xtQB1",
-)
+
+def _emit_status(on_status: Callable[[str], None] | None, message: str) -> None:
+    if on_status is not None:
+        on_status(message)
+
+
+def init_pipeline(pipeline_config: PipelineConfig, on_status: Callable[[str], None] | None = None) -> None:
+    fetch_raw_data_from_api(pipeline_config, on_status=on_status)
+    _emit_status(on_status, "Deriving data")
+    derive_raw_data()
+    _emit_status(on_status, "Building graphs")
+    build_network_graph()
+    _emit_status(on_status, "Completed")
 
 if __name__ == "__main__":
-    fetch_raw_data_from_api(pipeline_config)
-    derive_raw_data()
-    build_network_graph()
+    pipeline_config = PipelineConfig(
+        institution_id="",
+        api_email="",
+        api_key="",
+    )
+    init_pipeline(pipeline_config)
