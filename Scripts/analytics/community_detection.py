@@ -159,3 +159,35 @@ def merge_communities(community_x, community_y, new_id, e_xy: float):
     k_xy = community_x["k_c"] + community_y["k_c"]
     L_xy = community_x["L_c"] + community_y["L_c"] + e_xy
     return {new_id: {"nodes": nodes, "k_c": k_xy, "L_c": L_xy}}
+
+
+
+def average_community_density(newman_output):
+    """
+    uses Newman_greedy output to calculate the average density of communities
+    """
+    if not newman_output:
+        return 0.0
+
+    communities_dict = newman_output
+  
+
+    total_density = 0.0
+    counted = 0
+
+    for community in communities_dict.values():
+        nodes = community.get("nodes", set())
+        n = len(nodes)
+        if n < 2:
+            continue
+
+        # In your newman_greedy code, L_c already stores internal weight (counted once).
+        internal_weight = float(community.get("L_c", 0.0))
+        possible_edges = n * (n - 1) / 2
+        density = internal_weight / possible_edges if possible_edges > 0 else 0.0
+
+        total_density += density
+        counted += 1
+
+    return total_density / counted if counted else 0.0
+
