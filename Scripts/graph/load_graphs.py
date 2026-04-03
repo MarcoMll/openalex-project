@@ -12,11 +12,14 @@ try:
         LCC_COMMUNITY_IMG_NAME,
         LCC_HUBS_IMG_NAME,
         LCC_IMG_NAME,
+        INTERACTIVE_GRAPH_NAME,
         SCHOLARNET_REPORT_JSON_NAME,
         SEED,
         save_graph_image,
     )
     from utils.project_paths import get_paths
+    from utils.interactive_graph_converter import generate_interactive_graph
+
 except ModuleNotFoundError:
     project_root = Path(__file__).resolve().parents[2]
     if str(project_root) not in sys.path:
@@ -28,11 +31,13 @@ except ModuleNotFoundError:
         LCC_COMMUNITY_IMG_NAME,
         LCC_HUBS_IMG_NAME,
         LCC_IMG_NAME,
+        INTERACTIVE_GRAPH_NAME,
         SCHOLARNET_REPORT_JSON_NAME,
         SEED,
         save_graph_image,
     )
     from utils.project_paths import get_paths
+    from utils.interactive_graph_converter import generate_interactive_graph
 
 P = get_paths()
 SCHOLARNET_REPORT_PATH = P.DATA / "Analytics" / SCHOLARNET_REPORT_JSON_NAME
@@ -132,6 +137,8 @@ def load_graphs():
             node_size=graph_payload["node_size"],
             node_colors=graph_payload["node_colors"],
         )
+
+    generate_interactive_graph(lcc_graph, INTERACTIVE_GRAPH_NAME)
 
     print("Loading graphs completed.")
     return {

@@ -5,18 +5,22 @@ from pathlib import Path
 
 import streamlit as st
 from app.frontend.templates.graph_templates import render_community_summary, render_graph_summary, render_hubs_summary
+from app.frontend.templates.interactive_environment_template import render_interactive_environment
 
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 GUI_DIR = ROOT_DIR / "Assets" / "gui"
 IMAGES_DIR = ROOT_DIR / "Assets" / "Images"
+GRAPHS_DIR = ROOT_DIR / "Assets" / "Graphs"
 SCHOLARNET_REPORT_PATH = ROOT_DIR / "Data" / "Analytics" / "scholarnet_report.json"
+INTERACTIVE_GRAPH_HTML_PATH = GRAPHS_DIR / "interactive_graph.html"
 
 NAV_ITEMS = [
     ("original", "original_graph_icon.png", "Original graph"),
     ("lcc", "lcc_icon.png", "Largest Connected Component graph"),
     # In repository this icon is named analytics_icon.png.
     ("overall", "analytics_icon.png", "Overall"),
+    ("interactive", "interactive_icon.png", "Interactive Environment"),
 ]
 
 GRAPH_IMAGES = {
@@ -48,11 +52,19 @@ def _to_data_uri(image_path: Path) -> str:
     return f"data:image/{mime};base64,{encoded}"
 
 
+def _resolve_icon_path(primary_name: str, fallback_name: str) -> Path:
+    primary_path = GUI_DIR / primary_name
+    if primary_path.exists():
+        return primary_path
+    return GUI_DIR / fallback_name
+
+
 def _load_preview_css(
     styles_path: Path,
     original_icon_uri: str,
     lcc_icon_uri: str,
     analytics_icon_uri: str,
+    interactive_icon_uri: str,
     export_report_icon_uri: str,
 ) -> str:
     css = styles_path.read_text(encoding="utf-8")
@@ -60,6 +72,7 @@ def _load_preview_css(
         css.replace("__ORIGINAL_ICON_URI__", original_icon_uri)
         .replace("__LCC_ICON_URI__", lcc_icon_uri)
         .replace("__ANALYTICS_ICON_URI__", analytics_icon_uri)
+        .replace("__INTERACTIVE_ICON_URI__", interactive_icon_uri)
         .replace("__EXPORT_REPORT_ICON_URI__", export_report_icon_uri)
     )
 
@@ -77,6 +90,7 @@ def render_preview_page() -> None:
     original_icon_uri = _to_data_uri(GUI_DIR / "original_graph_icon.png")
     lcc_icon_uri = _to_data_uri(GUI_DIR / "lcc_icon.png")
     analytics_icon_uri = _to_data_uri(GUI_DIR / "analytics_icon.png")
+    interactive_icon_uri = _to_data_uri(_resolve_icon_path("interactive_icon.png", "analytics_icon.png"))
     export_report_icon_uri = _to_data_uri(GUI_DIR / "export_report_icon.png")
     styles_path = frontend_dir / "styles" / "preview.css"
     css = _load_preview_css(
@@ -84,6 +98,7 @@ def render_preview_page() -> None:
         original_icon_uri=original_icon_uri,
         lcc_icon_uri=lcc_icon_uri,
         analytics_icon_uri=analytics_icon_uri,
+        interactive_icon_uri=interactive_icon_uri,
         export_report_icon_uri=export_report_icon_uri,
     )
 
@@ -142,6 +157,11 @@ def render_preview_page() -> None:
             if hubs_graph_image_path and hubs_graph_image_path.exists():
                 render_hubs_summary(graph_key=selected)
                 st.image(str(hubs_graph_image_path), use_container_width=True)
+        elif selected == "interactive":
+            render_interactive_environment(
+                title=selected_label,
+                graph_html_path=INTERACTIVE_GRAPH_HTML_PATH,
+            )
         else:
             st.subheader(selected_label)
             st.markdown(
