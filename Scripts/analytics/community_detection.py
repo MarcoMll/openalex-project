@@ -162,7 +162,7 @@ def merge_communities(community_x, community_y, new_id, e_xy: float):
 
 
 
-def average_community_density(newman_output):
+def compute_average_community_density(newman_output):
     """
     uses Newman_greedy output to calculate the average density of communities
     """
@@ -181,7 +181,6 @@ def average_community_density(newman_output):
         if n < 2:
             continue
 
-        # In your newman_greedy code, L_c already stores internal weight (counted once).
         internal_weight = float(community.get("L_c", 0.0))
         possible_edges = n * (n - 1) / 2
         density = internal_weight / possible_edges if possible_edges > 0 else 0.0

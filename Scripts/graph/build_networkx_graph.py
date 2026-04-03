@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 
 from utils.interactive_graph_converter import generate_interactive_graph
 from utils.project_paths import get_paths
-from Scripts.analytics.community_detection import find_communities
-from Scripts.analytics.hub_detection import detect_hubs
+from Scripts.analytics.community_detection import find_communities, compute_average_community_density
+from Scripts.analytics.hub_detection import detect_hubs, compute_average_hub_metric
 from Scripts.analytics.metrics.metrics_calculator import *
 
 P = get_paths()
@@ -203,7 +203,8 @@ def build_network_graph():
 
     _, lcc_number_of_communities, lcc_partition = find_communities(lcc_subgraph, "Newman")
 
-    lcc_hubs = list(detect_hubs(lcc_subgraph, lcc_hubs_metric, lcc_hubs_threshold).keys())
+    lcc_hubs_dict: dict = detect_hubs(lcc_subgraph, lcc_hubs_metric, lcc_hubs_threshold)
+    lcc_hubs = list(lcc_hubs_dict.keys())
     nodes_without_hubs = remove_nodes_from_list(lcc_hubs, list(lcc_subgraph.nodes()))
 
     bg_stats = build_graph_stats(base_graph)
@@ -211,6 +212,8 @@ def build_network_graph():
         lcc_subgraph,
         number_of_communities=lcc_number_of_communities,
         number_of_hubs=len(lcc_hubs),
+        average_community_density=compute_average_community_density(lcc_partition),
+        average_hub_degree=compute_average_hub_metric(lcc_hubs_dict)
     )
 
     scholarnet_report = {
@@ -294,9 +297,4 @@ def build_network_graph():
     generate_interactive_graph(lcc_subgraph, INTERACTIVE_GRAPH_NAME) # converting to interactive
 
 if __name__ == "__main__":
-    base_graph = load_graph_from_edges_csv(EDGES_CSV)
-
-    largest_component_nodes = find_largest_connected_component(base_graph)
-    lcc_subgraph = get_subgraph_from_component_nodes(base_graph, largest_component_nodes)
-
-    generate_interactive_graph(lcc_subgraph, INTERACTIVE_GRAPH_NAME)  # converting to interactive
+    build_network_graph()

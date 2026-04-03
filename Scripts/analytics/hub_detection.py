@@ -100,7 +100,7 @@ def detect_hubs(
     return _filter_hubs_by_metric(metric_by_node, threshold=threshold)
 
 
-def average_hub_metric(hubs: Dict[NodeId, float]):
+def compute_average_hub_metric(hubs: Dict[NodeId, float]):
     if not hubs:
         return 0.0
     return sum(hubs.values()) / len(hubs)
@@ -115,4 +115,4 @@ if __name__ == "__main__":
         threshold=95.0,
     )
     print(hubs)
-    print(f"Average hub degree: {average_hub_metric(hubs)}")
+    print(f"Average hub degree: {compute_average_hub_metric(hubs)}")

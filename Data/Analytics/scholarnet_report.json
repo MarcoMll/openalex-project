@@ -3124,8 +3124,8 @@
     "average_normalized_strength_of_edges": 0.07263814616755793,
     "number_of_communities": 16,
     "number_of_hubs": 12,
-    "average_community_density": -1,
-    "average_hub_degree": -1,
+    "average_community_density": 0.7610914156797806,
+    "average_hub_degree": 14.333333333333334,
     "reconstruction_data": {
       "nodes": [
         "https://openalex.org/A5000069300",
