@@ -25,6 +25,7 @@
 
 .st-key-nav_original button,
 .st-key-nav_lcc button,
+.st-key-nav_hypergraph button,
 .st-key-nav_overall button,
 .st-key-nav_interactive button,
 .st-key-nav_export_report button {
@@ -51,6 +52,10 @@
   background-image: url("__LCC_ICON_URI__");
 }
 
+.st-key-nav_hypergraph button {
+  background-image: url("__HYPERGRAPH_ICON_URI__");
+}
+
 .st-key-nav_overall button {
   background-image: url("__ANALYTICS_ICON_URI__");
 }
@@ -65,6 +70,7 @@
 
 .st-key-nav_original button:hover,
 .st-key-nav_lcc button:hover,
+.st-key-nav_hypergraph button:hover,
 .st-key-nav_overall button:hover,
 .st-key-nav_interactive button:hover,
 .st-key-nav_export_report button:hover {

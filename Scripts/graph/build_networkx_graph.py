@@ -1,14 +1,13 @@
 import csv
 import json
-from collections.abc import Sequence
 import networkx as nx
-import matplotlib.pyplot as plt
 
 from utils.interactive_graph_converter import generate_interactive_graph
+from utils.graph_image_utils import build_graph_figure, save_graph_figure
 from utils.project_paths import get_paths
 from Scripts.analytics.community_detection import find_communities, compute_average_community_density
 from Scripts.analytics.hub_detection import detect_hubs, compute_average_hub_metric
-from Scripts.analytics.metrics.metrics_calculator import *
+from Scripts.analytics.metrics.networkx_metrics_calculator import *
 
 P = get_paths()
 EDGES_CSV = P.EDGES_CSV
@@ -25,16 +24,6 @@ LCC_HUBS_IMG_NAME = "lcc_hubs_graph.png"
 INTERACTIVE_GRAPH_NAME = "interactive_graph.html"
 SCHOLARNET_REPORT_JSON_NAME = "scholarnet_report.json"
 HARDCODED_METRIC_VALUE = -1
-
-
-def _is_hex_color(value: str):
-    if not isinstance(value, str):
-        return False
-
-    if len(value) not in (7, 9) or not value.startswith("#"):
-        return False
-
-    return all(char in "0123456789abcdefABCDEF" for char in value[1:])
 
 def load_graph_from_edges_csv(path = EDGES_CSV, max_edges: int = -1):
     graph = nx.Graph()
@@ -69,57 +58,16 @@ def find_largest_connected_component(graph: nx.Graph):
 def get_subgraph_from_component_nodes(graph: nx.Graph, components: set[str]):
     return graph.subgraph(components).copy()
 
-def save_graph_image(graph: nx.Graph, out_path, seed: int = SEED, node_size: int = 40, node_colors: list = None):
-    out_path.parent.mkdir(parents=True, exist_ok=True)
+def compute_node_positions(graph: nx.Graph, seed: int):
+    return nx.spring_layout(graph, seed=seed)  # deterministic layout
 
-    plt.figure(figsize=(14, 10))
-    pos = nx.spring_layout(graph, seed=seed)  # deterministic layout
+def serialize_node_positions(node_positions: dict):
+    serialized = {}
 
-    color_map = None
-    draw_kwargs = {}
+    for node, coords in node_positions.items():
+        serialized[node] = [float(coords[0]), float(coords[1])]
 
-    if node_colors is None:
-        node_colors = "#63c791"
-    elif isinstance(node_colors, list) and all(_is_hex_color(c) for c in node_colors):
-        color_map = None
-
-        # Matplotlib expects either one color, or one color per node.
-        # If user passes a short hex palette, repeat it to match node count.
-        if len(node_colors) == 0:
-            raise ValueError("node_colors cannot be an empty hex color list.")
-        if len(node_colors) == 1:
-            node_colors = node_colors[0]
-        elif len(node_colors) != graph.number_of_nodes():
-            palette = node_colors
-            node_colors = [palette[i % len(palette)] for i, _ in enumerate(graph.nodes())]
-    else:
-        color_map = plt.cm.tab20
-        if all(isinstance(c, (int, float)) for c in node_colors):
-            draw_kwargs["vmin"] = 0
-            draw_kwargs["vmax"] = 19
-
-    if (
-        isinstance(node_colors, Sequence)
-        and not isinstance(node_colors, (str, bytes))
-        and len(node_colors) not in (1, graph.number_of_nodes())
-    ):
-        raise ValueError(
-            f"node_colors must have length 1 or match graph nodes count ({graph.number_of_nodes()}); "
-            f"got {len(node_colors)}."
-        )
-
-    nx.draw(
-        graph,
-        pos=pos,
-        node_size=node_size,
-        node_color=node_colors,
-        cmap=color_map,
-        width=0.5,
-        with_labels=False,
-        **draw_kwargs,
-    )
-    plt.savefig(out_path, dpi=300, bbox_inches="tight")
-    plt.close()  # prevents figures from stacking up
+    return serialized
 
 def split_graph_by_color(graph: nx.Graph, partition: dict, custom_colors: list = None):
     node_to_color = {}
@@ -175,6 +123,7 @@ def serialize_graph_for_reconstruction(
     node_sizes: dict,
     communities_colors: list | None = None,
     hubs_colors: list | None = None,
+    node_positions: dict | None = None,
 ):
     edges = [
         {"u": u, "v": v, "weight": data.get("weight", 1.0)}
@@ -186,6 +135,7 @@ def serialize_graph_for_reconstruction(
         "edges": edges,
         "seed": seed,
         "node_sizes": node_sizes,
+        "node_positions": serialize_node_positions(node_positions) if node_positions else {},
         "color_partitions": {
             "communities": communities_colors if communities_colors is not None else [],
             "hubs": hubs_colors if hubs_colors is not None else [],
@@ -234,6 +184,7 @@ def build_network_graph():
 
     lcc_community_colors = split_graph_by_color(lcc_subgraph, lcc_partition)
     lcc_hub_colors = split_graph_by_color(lcc_subgraph, final_dict, ["#63C791", "#C76399"])
+    lcc_node_positions = compute_node_positions(lcc_subgraph, SEED)
 
     scholarnet_report["base_graph"]["reconstruction_data"] = serialize_graph_for_reconstruction(
         base_graph,
@@ -248,6 +199,7 @@ def build_network_graph():
         node_sizes={"default": 40, "communities": 40, "hubs": 40},
         communities_colors=lcc_community_colors,
         hubs_colors=lcc_hub_colors,
+        node_positions=lcc_node_positions,
     )
 
     analytics_dir = P.DATA / "Analytics"
@@ -268,29 +220,33 @@ def build_network_graph():
             "image_name": LCC_IMG_NAME,
             "node_size": 40,
             "node_colors": None,
+            "node_positions": lcc_node_positions,
         },
         "lcc_community_graph": {
             "graph": lcc_subgraph,
             "image_name": LCC_COMMUNITY_IMG_NAME,
             "node_size": 40,
             "node_colors": lcc_community_colors,
+            "node_positions": lcc_node_positions,
         },
         "lcc_hubs_graph": {
             "graph": lcc_subgraph,
             "image_name": LCC_HUBS_IMG_NAME,
             "node_size": 40,
             "node_colors": lcc_hub_colors,
+            "node_positions": lcc_node_positions,
         },
     }
 
     for graph_payload in graph_render_plan.values():
-        save_graph_image(
+        figure = build_graph_figure(
             graph_payload["graph"],
-            GRAPH_IMG_PATH / graph_payload["image_name"],
             seed=SEED,
             node_size=graph_payload["node_size"],
             node_colors=graph_payload["node_colors"],
+            node_positions=graph_payload.get("node_positions"),
         )
+        save_graph_figure(figure, GRAPH_IMG_PATH / graph_payload["image_name"])
 
     print("Building graphs completed.")
 

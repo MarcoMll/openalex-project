@@ -4,7 +4,15 @@ import base64
 from pathlib import Path
 
 import streamlit as st
-from app.frontend.templates.graph_templates import render_community_summary, render_graph_summary, render_hubs_summary
+from app.frontend.templates.graph_templates import (
+    render_community_summary,
+    render_graph_summary,
+    render_hubs_summary,
+)
+from app.frontend.templates.hypergraph_template import (
+    render_hypergraph_group_size_piechart,
+    render_hypergraph_summary,
+)
 from app.frontend.templates.interactive_environment_template import render_interactive_environment
 
 
@@ -18,6 +26,7 @@ INTERACTIVE_GRAPH_HTML_PATH = GRAPHS_DIR / "interactive_graph.html"
 NAV_ITEMS = [
     ("original", "original_graph_icon.png", "Original graph"),
     ("lcc", "lcc_icon.png", "Largest Connected Component graph"),
+    ("hypergraph", "meshes_icon.png", "Hypergraph"),
     # In repository this icon is named analytics_icon.png.
     ("overall", "analytics_icon.png", "Overall"),
     ("interactive", "interactive_icon.png", "Interactive Environment"),
@@ -37,6 +46,8 @@ HUBS_GRAPH_IMAGES = {
     "original": IMAGES_DIR / "original_hubs_graph.png",
     "lcc": IMAGES_DIR / "lcc_hubs_graph.png",
 }
+
+HYPERGRAPH_IMAGE_PATH = IMAGES_DIR / "hypergraph_hgx.png"
 
 
 def _resolve_report_path() -> Path | None:
@@ -63,6 +74,7 @@ def _load_preview_css(
     styles_path: Path,
     original_icon_uri: str,
     lcc_icon_uri: str,
+    hypergraph_icon_uri: str,
     analytics_icon_uri: str,
     interactive_icon_uri: str,
     export_report_icon_uri: str,
@@ -71,6 +83,7 @@ def _load_preview_css(
     return (
         css.replace("__ORIGINAL_ICON_URI__", original_icon_uri)
         .replace("__LCC_ICON_URI__", lcc_icon_uri)
+        .replace("__HYPERGRAPH_ICON_URI__", hypergraph_icon_uri)
         .replace("__ANALYTICS_ICON_URI__", analytics_icon_uri)
         .replace("__INTERACTIVE_ICON_URI__", interactive_icon_uri)
         .replace("__EXPORT_REPORT_ICON_URI__", export_report_icon_uri)
@@ -89,6 +102,7 @@ def render_preview_page() -> None:
     frontend_dir = Path(__file__).resolve().parents[1]
     original_icon_uri = _to_data_uri(GUI_DIR / "original_graph_icon.png")
     lcc_icon_uri = _to_data_uri(GUI_DIR / "lcc_icon.png")
+    hypergraph_icon_uri = _to_data_uri(GUI_DIR / "meshes_icon.png")
     analytics_icon_uri = _to_data_uri(GUI_DIR / "analytics_icon.png")
     interactive_icon_uri = _to_data_uri(_resolve_icon_path("interactive_icon.png", "analytics_icon.png"))
     export_report_icon_uri = _to_data_uri(GUI_DIR / "export_report_icon.png")
@@ -97,6 +111,7 @@ def render_preview_page() -> None:
         styles_path=styles_path,
         original_icon_uri=original_icon_uri,
         lcc_icon_uri=lcc_icon_uri,
+        hypergraph_icon_uri=hypergraph_icon_uri,
         analytics_icon_uri=analytics_icon_uri,
         interactive_icon_uri=interactive_icon_uri,
         export_report_icon_uri=export_report_icon_uri,
@@ -157,6 +172,13 @@ def render_preview_page() -> None:
             if hubs_graph_image_path and hubs_graph_image_path.exists():
                 render_hubs_summary(graph_key=selected)
                 st.image(str(hubs_graph_image_path), use_container_width=True)
+        elif selected == "hypergraph":
+            render_hypergraph_summary(title=selected_label)
+            if HYPERGRAPH_IMAGE_PATH.exists():
+                st.image(str(HYPERGRAPH_IMAGE_PATH), use_container_width=True)
+            else:
+                st.warning(f"Hypergraph image not found: {HYPERGRAPH_IMAGE_PATH}")
+            render_hypergraph_group_size_piechart()
         elif selected == "interactive":
             render_interactive_environment(
                 title=selected_label,

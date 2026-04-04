@@ -1,5 +1,6 @@
 matplotlib==3.10.8
 networkx==3.6.1
+hypergraphx
 pyalex==0.19
 pyvis==0.3.2
 streamlit==1.56.0

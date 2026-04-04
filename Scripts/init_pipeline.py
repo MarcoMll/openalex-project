@@ -13,6 +13,7 @@ if str(SCRIPTS_DIR) not in sys.path:
 from pipeline.fetch_raw_data import fetch_raw_data_from_api
 from pipeline.derive_data import derive_raw_data
 from graph.build_networkx_graph import build_network_graph
+from graph.build_hypergraphx_graph import build_hypergraphx_graph
 from dataclasses import dataclass
 
 @dataclass
@@ -33,6 +34,8 @@ def init_pipeline(pipeline_config: PipelineConfig, on_status: Callable[[str], No
     derive_raw_data()
     _emit_status(on_status, "Building graphs")
     build_network_graph()
+    _emit_status(on_status, "Building a hypernetwork")
+    build_hypergraphx_graph()
     _emit_status(on_status, "Completed")
 
 if __name__ == "__main__":
