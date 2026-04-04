@@ -877,90 +877,124 @@ def explain_inequality_of_roles_and_dependence_on_key_authors(
 
 
 
-
-def _run_combined_sections_with_project_data(
-    top_percent: float = 5.0,
-    hub_threshold: float = 95.0,
-) -> None:
+def explain_average_hyperdegree(value: float):
     """
-    Run only the three combined explanation sections using real project data.
+    Explanation of average hyperdegree.
+
+    Bands:
+    - 1.0 <= value < 1.5 : Very low average hyperdegree
+    - 1.5 <= value < 2.5 : Low average hyperdegree
+    - 2.5 <= value < 4.0 : Moderate average hyperdegree
+    - 4.0 <= value < 6.0 : High average hyperdegree
+    - 6.0 <= value < 10.0 : Very high average hyperdegree
+    - value >= 10.0 : Extremely high average hyperdegree
     """
-    from Scripts.analytics.betweenness_centrality_detection import detect_betweenness_centrality
-    from Scripts.analytics.community_detection import average_community_density, find_communities
-    from Scripts.analytics.hub_detection import average_hub_metric, detect_hubs
-    from Scripts.analytics.metrics.metrics_calculator import (
-        compute_average_normalized_strength_of_edges,
-        compute_average_per_node,
-        compute_graph_density,
-        compute_graph_weighted_density,
-    )
-    from Scripts.graph.build_networkx_graph import (
-        find_largest_connected_component,
-        get_subgraph_from_component_nodes,
-        load_graph_from_edges_csv,
-    )
-
-    base_graph = load_graph_from_edges_csv()
-    lcc_nodes = find_largest_connected_component(base_graph)
-    if not lcc_nodes:
-        raise ValueError("Largest connected component could not be computed from project data.")
-    lcc_graph = get_subgraph_from_component_nodes(base_graph, lcc_nodes)
-
-    # Inputs for overall connectivity and collaboration intensity (whole graph)
-    density = compute_graph_density(lcc_graph)
-    weighted_density = compute_graph_weighted_density(lcc_graph)
-    average_strength_of_edges = compute_average_normalized_strength_of_edges(lcc_graph)
-    average_degree_whole, _ = compute_average_per_node(lcc_graph, "degree")
-
-    # Inputs for modularity and network segmentation (LCC communities)
-    modularity, number_of_communities, partition = find_communities(lcc_graph, "Newman")
-    avg_comm_density = average_community_density(partition)
-    total_nodes_lcc = lcc_graph.number_of_nodes()
-
-    # Inputs for inequality of roles and dependence on key authors (LCC hubs + betweenness)
-    average_degree_lcc, _ = compute_average_per_node(lcc_graph, "degree")
-    hubs = detect_hubs(lcc_graph, metric="degree", threshold=hub_threshold)
-    avg_hub_degree = average_hub_metric(hubs)
-    hub_dominance_ratio = (avg_hub_degree / average_degree_lcc) if average_degree_lcc > 0 else 0.0
-    betweenness_top = detect_betweenness_centrality(lcc_graph, top_percent=top_percent)
-    average_betweenness = (
-        sum(betweenness_top.values()) / len(betweenness_top) if betweenness_top else 0.0
-    )
-
-    print("=== Combined Sections (Real Project Data) ===\n")
-
-    print("[Overall connectivity and collaboration intensity]")
-    print(
-        explain_overall_connectivity_and_collaboration_intensity(
-            density=density,
-            average_degree=average_degree_whole,
-            average_strength_of_edges=average_strength_of_edges,
-            weighted_density=weighted_density,
+    if value < 1.5:
+        explanation = (
+            "This indicates that the network is dominated by authors who appear in only one paper, or at most a very small "
+            "number of papers. In the co-authorship hypergraph, this usually indicates a highly peripheral structure where many "
+            "contributors are one-time or short-term participants rather than members of a stable research core. A network in "
+            "this band may still have collaboration, but that collaboration is likely spread across many isolated or weakly "
+            "repeated publishing events rather than sustained author involvement over time."
         )
-    )
-    print()
-
-    print("[Modularity and network segmentation]")
-    print(
-        explain_modularity_and_network_segmentation(
-            number_of_communities=number_of_communities,
-            total_nodes=total_nodes_lcc,
-            modularity=modularity,
-            average_community_density=avg_comm_density,
+    elif value < 2.5:
+        explanation = (
+            "This indicates that most authors have limited participation in the publication set, although there is beginning to "
+            "be some repetition of authors across papers. In the co-authorship hypergraph, this often reflects a network where "
+            "collaboration exists but is not especially deep or persistent for most members. There may be a small active core, "
+            "but the overall author population is still largely made up of occasional contributors, visiting collaborators, or "
+            "authors connected to only a few projects."
         )
-    )
-    print()
-
-    print("[Inequality of roles and dependence on key authors]")
-    print(
-        explain_inequality_of_roles_and_dependence_on_key_authors(
-            hub_dominance_ratio=hub_dominance_ratio,
-            average_betweenness=average_betweenness,
+    elif value < 4.0:
+        explanation = (
+            "This indicates a more established collaboration structure. Authors are, on average, appearing in multiple "
+            "papers, which suggests more continuity in publishing activity and a stronger underlying research network. In the co-authorship "
+            "hypergraph, this often points to the presence of recurring teams, repeated author involvement, and a clearer distinction between "
+            "a stable core of active researchers and a smaller peripheral group of less frequent contributors."
         )
-    )
-    print()
+    elif value < 6.0:
+        explanation = (
+            "This indicates that authors are contributing to many papers on average, which is generally a sign of a highly active and "
+            "interconnected publication environment. In the co-authorship hypergraph, a value in this band often indicates sustained "
+            "collaboration patterns, recurring partnerships, and a research community in which authors are repeatedly involved in ongoing "
+            "work rather than isolated publication events. It may also suggest the presence of productive labs, departments, or research "
+            "clusters with continuous output."
+        )
+    elif value < 10.0:
+        explanation = (
+            "This points to a very active authorship structure in which many authors appear across a substantial number of papers. "
+            "In the co-authorship hypergraph, this often reflects a mature and strongly collaborative ecosystem where repeated publishing is common "
+            "and the core researchers are heavily involved in multiple works. A network in this range may contain strong institutional "
+            "collaboration, long-term research programs, or groups with dense internal activity and recurring co-authorship patterns."
+        )
+    else:
+        explanation = (
+            "This indicates an exceptionally active network in which authors appear in a large number of papers on average. In the co-authorship "
+            "hypergraph, this would typically imply either a very productive research community, a relatively concentrated set of authors generating "
+            "many publications, or a dataset focused on a particularly active subfield or institution. Interpretation should be made carefully, "
+            "since a very high value can reflect genuine collaboration intensity, but it can also be influenced by dataset scope, time span, or "
+            "repeated inclusion of prolific senior authors."
+        )
+
+    return f"Average hyperdegree = {value:.4f}. {explanation}"
 
 
-if __name__ == "__main__":
-    _run_combined_sections_with_project_data()
+def explain_most_common_group_size(mode_group_size: int):
+    """
+    Explanation of most common group size.
 
+    Bands:
+    - Mode = 1
+    - Mode = 2
+    - Mode = 3
+    - Mode = 4-5
+    - Mode = 6-8
+    - Mode = 9+
+    """
+    if mode_group_size < 1:
+        raise ValueError("Most common group size (mode) must be >= 1.")
+
+    if mode_group_size == 1:
+        explanation = (
+            "The dataset is dominated by single-author papers. In the co-authorship "
+            "hypergraph, this indicates that collaborative writing is not the main publication pattern and that authors often "
+            "work independently. This can occur in fields where individual scholarship is more common, or in datasets that include "
+            "many theoretical, conceptual, or humanities-style outputs where solo publication remains frequent."
+        )
+    elif mode_group_size == 2:
+        explanation = (
+            "The dominant structure is two-author collaboration. In the co-authorship "
+            "hypergraph, this indicates that research is most often carried out through direct partnerships rather than larger teams. "
+            "This often points to a collaboration culture built around close co-working relationships, advisor-student publishing pairs, "
+            "or stable research partnerships where work is typically produced by a small number of contributors rather than by broad collective teams."
+        )
+    elif mode_group_size == 3:
+        explanation = (
+            "The dominant unit of collaboration is a small research team. In the co-authorship hypergraph, "
+            "this usually indicates a balance between intimacy and teamwork: papers are not mostly solo or pair-based, but they are also "
+            "not produced by large consortium-style groups. A mode of 3 often indicates that collaboration is structured around compact teams "
+            "where authors contribute in a relatively coordinated and repeated way."
+        )
+    elif mode_group_size <= 5:
+        explanation = (
+            "This indicates that the network is mainly driven by medium-sized research teams. "
+            "In the co-authorship hypergraph, this often points to more coordinated and possibly more interdisciplinary work, where projects require "
+            "several contributors with distinct roles. Compared with pair-based or trio-based systems, this kind of mode indicates a stronger tendency "
+            "toward collective production and a less individualistic collaboration pattern."
+        )
+    elif mode_group_size <= 8:
+        explanation = (
+            "The network is characterized by relatively large author teams as its default collaboration unit. "
+            "In the co-authorship hypergraph, this indicates that research output is commonly produced through substantial group efforts rather than through small-scale "
+            "partnerships. This can reflect lab-centered work, multi-unit projects, or fields where data collection, experimentation, and publication require "
+            "broader collaboration across several contributors."
+        )
+    else:
+        explanation = (
+            "The network is dominated by very large teams. In the co-authorship hypergraph, this typically indicates "
+            "highly collective publishing practices, such as large labs, institutional collaborations, multi-center studies, or consortium-based work. A mode "
+            "in this range indicates that publication is less about small author partnerships and more about coordinated large-scale research structures involving "
+            "many contributors on each paper."
+        )
+
+    return f"Most common group size (mode) = {mode_group_size}. {explanation}"
