@@ -617,7 +617,7 @@ def explain_overall_connectivity_and_collaboration_intensity(
         "Average strength of edges + weighted density indicate how deep and repeated collaboration is."
     )
 
-    return f"{section_measure} {how_to_read} {metric_summary} {outcome}"
+    return f"{metric_summary} {outcome}"
 
 
 def explain_modularity_and_network_segmentation(
@@ -664,7 +664,7 @@ def explain_modularity_and_network_segmentation(
     if modularity > 0.60 and average_community_density > 0.60 and community_ratio >= 0.050:
         outcome = (
             "The co-authorship graph shows very strong segmentation with highly cohesive internal communities. The detected groups "
-            "are not only clearly separated from one another, but also very tightly connected inside. In the context of an institute, "
+            "are not only clearly separated from one another, but also very tightly connected inside. In the context of the co-authorship graph, "
             "this suggests a collaboration structure dominated by strong and internally integrated research clusters, with relatively "
             "little mixing between different parts of the network."
         )
@@ -744,7 +744,7 @@ def explain_modularity_and_network_segmentation(
         "and average community density indicates how strongly authors collaborate inside each group."
     )
 
-    return f"{section_measure} {how_to_read} {summary} {outcome}"
+    return f"{summary} {outcome}"
 
 
 def explain_inequality_of_roles_and_dependence_on_key_authors(
@@ -846,17 +846,19 @@ def explain_inequality_of_roles_and_dependence_on_key_authors(
         outcome = (
             "The co-authorship graph shows low inequality of roles and limited dependence on key authors. The most connected authors are not "
             "dramatically more collaborative than the average researcher, and the strongest bridging authors do not appear to dominate the links "
-            "between different parts of the network. In co-authorship terms, this suggests that collaboration roles are relatively balanced across "
+            "between different parts of the network. In the co-authorship graph, this suggests that collaboration roles are relatively balanced across "
             "the institute, with no strong structural reliance on a small elite group of central authors."
         )
     else:
         outcome = (
-            "This hub-dominance/betweenness combination does not map exactly to one of the predefined role-inequality outcomes. "
-            "It suggests a mixed profile between collaboration reach inequality and broker dependence."
+            "The co-authorship graph shows very strong inequality of roles and heavy dependence on key authors. "
+            "The most connected authors are far more collaborative than the average researcher, and the strongest bridging authors are extremely important in linking different parts of the network."
+            "This indicates a highly centralized collaboration structure in which a small number of researchers dominate both collaboration reach and structural connectivity. "
+            "While this may reflect strong leadership or institutional prominence, it also suggests vulnerability, since the loss of these authors could significantly weaken cross-network collaboration."
         )
 
     summary = (
-        f"Hub dominance ratio (R_h) = {hub_dominance_ratio:.4f} ({hub_band}); "
+        f"Hub dominance ratio = {hub_dominance_ratio:.4f} ({hub_band}); "
         f"Average betweenness = {average_betweenness:.4f} ({bet_band})."
     )
 
@@ -871,7 +873,9 @@ def explain_inequality_of_roles_and_dependence_on_key_authors(
         "for cross-community connectivity."
     )
 
-    return f"{section_measure} {how_to_read} {summary} {outcome}"
+    return f"{summary} {outcome}"
+
+
 
 
 def _run_combined_sections_with_project_data(
