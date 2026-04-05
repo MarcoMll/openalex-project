@@ -219,3 +219,16 @@ Converts a NetworkX graph (in our case is the biggest_component subgraph) into a
 **How it works:**
   - `build_network.py` constructs `Gc` and then calls `generate_interactive_graph(Gc)`
   - it then outputs an interactive HTML file (that is stored at `Assets/Graphs/`)
+
+---
+
+### Copyright and Academic Integrity
+
+This project was created as part of university coursework.
+
+Copyright (c) 2026 Marco Malliani and Ryder Mills Wood.
+All rights reserved.
+
+No copying, redistribution, modification, republication, or submission of this
+project as one's own work is permitted without explicit written permission from
+the copyright holders.

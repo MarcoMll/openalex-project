@@ -3,7 +3,7 @@ import json
 import networkx as nx
 
 from utils.interactive_graph_converter import generate_interactive_graph
-from utils.graph_image_utils import build_graph_figure, save_graph_figure
+from utils.graph_visualizer import GraphConfig, build_graph_figure, save_graph_figure
 from utils.project_paths import get_paths
 from Scripts.analytics.community_detection import find_communities, compute_average_community_density
 from Scripts.analytics.hub_detection import detect_hubs, compute_average_hub_metric
@@ -57,17 +57,6 @@ def find_largest_connected_component(graph: nx.Graph):
 
 def get_subgraph_from_component_nodes(graph: nx.Graph, components: set[str]):
     return graph.subgraph(components).copy()
-
-def compute_node_positions(graph: nx.Graph, seed: int):
-    return nx.spring_layout(graph, seed=seed)  # deterministic layout
-
-def serialize_node_positions(node_positions: dict):
-    serialized = {}
-
-    for node, coords in node_positions.items():
-        serialized[node] = [float(coords[0]), float(coords[1])]
-
-    return serialized
 
 def split_graph_by_color(graph: nx.Graph, partition: dict, custom_colors: list = None):
     node_to_color = {}
@@ -123,7 +112,6 @@ def serialize_graph_for_reconstruction(
     node_sizes: dict,
     communities_colors: list | None = None,
     hubs_colors: list | None = None,
-    node_positions: dict | None = None,
 ):
     edges = [
         {"u": u, "v": v, "weight": data.get("weight", 1.0)}
@@ -135,7 +123,6 @@ def serialize_graph_for_reconstruction(
         "edges": edges,
         "seed": seed,
         "node_sizes": node_sizes,
-        "node_positions": serialize_node_positions(node_positions) if node_positions else {},
         "color_partitions": {
             "communities": communities_colors if communities_colors is not None else [],
             "hubs": hubs_colors if hubs_colors is not None else [],
@@ -184,8 +171,6 @@ def build_network_graph():
 
     lcc_community_colors = split_graph_by_color(lcc_subgraph, lcc_partition)
     lcc_hub_colors = split_graph_by_color(lcc_subgraph, final_dict, ["#63C791", "#C76399"])
-    lcc_node_positions = compute_node_positions(lcc_subgraph, SEED)
-
     scholarnet_report["base_graph"]["reconstruction_data"] = serialize_graph_for_reconstruction(
         base_graph,
         seed=SEED,
@@ -199,7 +184,6 @@ def build_network_graph():
         node_sizes={"default": 40, "communities": 40, "hubs": 40},
         communities_colors=lcc_community_colors,
         hubs_colors=lcc_hub_colors,
-        node_positions=lcc_node_positions,
     )
 
     analytics_dir = P.DATA / "Analytics"
@@ -220,37 +204,33 @@ def build_network_graph():
             "image_name": LCC_IMG_NAME,
             "node_size": 40,
             "node_colors": None,
-            "node_positions": lcc_node_positions,
         },
         "lcc_community_graph": {
             "graph": lcc_subgraph,
             "image_name": LCC_COMMUNITY_IMG_NAME,
             "node_size": 40,
             "node_colors": lcc_community_colors,
-            "node_positions": lcc_node_positions,
         },
         "lcc_hubs_graph": {
             "graph": lcc_subgraph,
             "image_name": LCC_HUBS_IMG_NAME,
             "node_size": 40,
             "node_colors": lcc_hub_colors,
-            "node_positions": lcc_node_positions,
         },
     }
 
     for graph_payload in graph_render_plan.values():
         figure = build_graph_figure(
             graph_payload["graph"],
-            seed=SEED,
-            node_size=graph_payload["node_size"],
+            graph_config=GraphConfig(seed=SEED, node_size=graph_payload["node_size"]),
             node_colors=graph_payload["node_colors"],
-            node_positions=graph_payload.get("node_positions"),
         )
         save_graph_figure(figure, GRAPH_IMG_PATH / graph_payload["image_name"])
 
     print("Building graphs completed.")
 
     generate_interactive_graph(lcc_subgraph, INTERACTIVE_GRAPH_NAME) # converting to interactive
+    return base_graph, lcc_subgraph
 
 if __name__ == "__main__":
     build_network_graph()

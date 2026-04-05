@@ -27,6 +27,10 @@ def newman_greedy(graph: nx.Graph):
 
     nodes_set = set(graph.nodes()) # set of nodes with no duplicates
 
+    for node in nodes_set:
+        if node not in edges_lookup_dict:
+            edges_lookup_dict[node] = {}
+
     nodes_degree_dict = {}
     for node in nodes_set:
         weight_sum = sum(edges_lookup_dict[node].values())
@@ -35,33 +39,36 @@ def newman_greedy(graph: nx.Graph):
     L = sum(nodes_degree_dict[node] for node in nodes_set) / 2 # divide by 2 because each undirected edge is counted twice
 
     communities_dict = {}
-    community_of_node = {}
 
     # initialize each node is its own community
     for node in nodes_set:
         community_id = node  # simplest id strategy for now
 
-        community_of_node[node] = community_id
         communities_dict[community_id] = {
             "nodes": {node},  # set[node]
             "k_c": nodes_degree_dict[node],  # community strength
             "L_c": 0.0,  # internal weight
         }
 
-    Q = calculate_community_modularity(L, communities_dict)
-
-    current_Q = Q
-    best_Q = Q
+    # We compute Q once for the initial partition.
+    # Later we update it by modularity gain (delta Q)
+    current_Q = calculate_community_modularity(L, communities_dict)
+    best_Q = current_Q
     best_partition = clone_partition(communities_dict)
     merge_counter = 0
+
+    # Cache of inter-community weights e_xy.
+    # At the start, every community is just one node, so this is simply edge weights.
+    e_cache = build_intercommunity_cache(edges_list)
 
     while True:
         community_ids = list(communities_dict.keys())
         if len(community_ids) <= 1:
             break
 
-        iteration_best_Q = current_Q
-        iteration_best_partition = None
+        iteration_best_delta_q = 0.0
+        best_pair = None
+        best_pair_e_xy = 0.0
 
         for i in range(len(community_ids)):
             for j in range(i + 1, len(community_ids)):
@@ -71,32 +78,37 @@ def newman_greedy(graph: nx.Graph):
                 community_x = communities_dict[cid_x]
                 community_y = communities_dict[cid_y]
 
-                e_xy = calculate_intercommunity_weight(
-                    community_x["nodes"],
-                    community_y["nodes"],
-                    edges_lookup_dict
+                e_xy = e_cache.get(cid_x, {}).get(cid_y, 0.0)
+                delta_q = compute_modularity_gain(
+                    L,
+                    community_x["k_c"],
+                    community_y["k_c"],
+                    e_xy,
                 )
 
-                merged_id = f"merge_{merge_counter}_{i}_{j}"
-                merged_piece = merge_communities(community_x, community_y, merged_id, e_xy)
-
-                candidate_partition = clone_partition(communities_dict)
-                del candidate_partition[cid_x]
-                del candidate_partition[cid_y]
-                candidate_partition.update(merged_piece)
-
-                candidate_Q = calculate_community_modularity(L, candidate_partition)
-
-                if candidate_Q > iteration_best_Q:
-                    iteration_best_Q = candidate_Q
-                    iteration_best_partition = candidate_partition
+                if delta_q > iteration_best_delta_q:
+                    iteration_best_delta_q = delta_q
+                    best_pair = (cid_x, cid_y)
+                    best_pair_e_xy = e_xy
 
         # no improving merge -> stop
-        if iteration_best_partition is None:
+        if best_pair is None:
             break
 
-        communities_dict = iteration_best_partition
-        current_Q = iteration_best_Q
+        cid_x, cid_y = best_pair
+        community_x = communities_dict[cid_x]
+        community_y = communities_dict[cid_y]
+
+        merged_id = f"merge_{merge_counter}_{cid_x}_{cid_y}"
+        merged_community = merge_communities(community_x, community_y, best_pair_e_xy)
+
+        del communities_dict[cid_x]
+        del communities_dict[cid_y]
+        communities_dict[merged_id] = merged_community
+
+        update_intercommunity_cache(e_cache, cid_x, cid_y, merged_id, communities_dict)
+
+        current_Q = current_Q + iteration_best_delta_q
         merge_counter += 1
 
         if current_Q > best_Q:
@@ -121,7 +133,7 @@ def newman_greedy(graph: nx.Graph):
     })
     '''
 
-    return best_Q, (len(nodes_set) - merge_counter), best_partition
+    return best_Q, len(best_partition), best_partition
 
 def calculate_community_modularity(L: int, c):
     if L <= 0:
@@ -146,6 +158,60 @@ def clone_partition(partition: dict):
         for cid, data in partition.items()
     }
 
+def build_intercommunity_cache(edges_list: list):
+    cache = {}
+
+    for edge in edges_list:
+        u = edge[0]
+        v = edge[1]
+        w = float(edge[2]["weight"])
+
+        if u not in cache:
+            cache[u] = {}
+        if v not in cache:
+            cache[v] = {}
+
+        cache[u][v] = cache[u].get(v, 0.0) + w
+        cache[v][u] = cache[v].get(u, 0.0) + w
+
+    return cache
+
+def update_intercommunity_cache(e_cache: dict, cid_x, cid_y, merged_id, communities_dict: dict):
+    neighbors_x = e_cache.get(cid_x, {})
+    neighbors_y = e_cache.get(cid_y, {})
+
+    e_cache[merged_id] = {}
+
+    for cid_z in communities_dict.keys():
+        if cid_z == merged_id:
+            continue
+
+        e_xz = neighbors_x.get(cid_z, 0.0)
+        e_yz = neighbors_y.get(cid_z, 0.0)
+        e_merged_z = e_xz + e_yz
+
+        if e_merged_z > 0.0:
+            e_cache[merged_id][cid_z] = e_merged_z
+
+            if cid_z not in e_cache:
+                e_cache[cid_z] = {}
+            e_cache[cid_z][merged_id] = e_merged_z
+
+        if cid_z in e_cache and cid_x in e_cache[cid_z]:
+            del e_cache[cid_z][cid_x]
+        if cid_z in e_cache and cid_y in e_cache[cid_z]:
+            del e_cache[cid_z][cid_y]
+
+    if cid_x in e_cache:
+        del e_cache[cid_x]
+    if cid_y in e_cache:
+        del e_cache[cid_y]
+
+def compute_modularity_gain(L: float, k_x: float, k_y: float, e_xy: float) -> float:
+    # Delta Q for merging communities x and y:
+    # delta = (1/L) * (e_xy - (k_x * k_y) / (2L))
+    return (1.0 / L) * (e_xy - ((k_x * k_y) / (2.0 * L)))
+
 def calculate_intercommunity_weight(nodes_x: set, nodes_y: set, edges_lookup_dict: dict) -> float:
     total = 0.0
     for u in nodes_x:
@@ -154,23 +220,17 @@ def calculate_intercommunity_weight(nodes_x: set, nodes_y: set, edges_lookup_dic
             total += neighbors.get(v, 0.0)
     return total
 
-def merge_communities(community_x, community_y, new_id, e_xy: float):
+def merge_communities(community_x, community_y, e_xy: float):
     nodes = community_x["nodes"] | community_y["nodes"]
     k_xy = community_x["k_c"] + community_y["k_c"]
     L_xy = community_x["L_c"] + community_y["L_c"] + e_xy
-    return {new_id: {"nodes": nodes, "k_c": k_xy, "L_c": L_xy}}
+    return {"nodes": nodes, "k_c": k_xy, "L_c": L_xy}
 
-
-
-def compute_average_community_density(newman_output):
-    """
-    uses Newman_greedy output to calculate the average density of communities
-    """
-    if not newman_output:
+def compute_average_community_density(newman_parititon):
+    if not newman_parititon:
         return 0.0
 
-    communities_dict = newman_output
-  
+    communities_dict = newman_parititon
 
     total_density = 0.0
     counted = 0
@@ -189,4 +249,3 @@ def compute_average_community_density(newman_output):
         counted += 1
 
     return total_density / counted if counted else 0.0
-

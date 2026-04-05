@@ -33,7 +33,7 @@ NAV_ITEMS = [
 ]
 
 GRAPH_IMAGES = {
-    "original": IMAGES_DIR / "original_graph.png",
+    "original": IMAGES_DIR / "base_graph.png",
     "lcc": IMAGES_DIR / "largest_connected_component_graph.png",
 }
 

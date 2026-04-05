@@ -72,7 +72,7 @@ def _render_footer_logo(logo_uri: str) -> None:
 
 
 def _run_report_reconstruction(report_bytes: bytes) -> None:
-    from Scripts.graph.load_graphs import load_graphs
+    from Scripts.graph.graphs_loader import load_graphs
 
     st.session_state["report_loading_started"] = True
     st.session_state["report_loading_error"] = ""

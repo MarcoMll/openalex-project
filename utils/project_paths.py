@@ -20,6 +20,7 @@ class ProjectPaths:
     DATA: Path
     RAW_DIR: Path
     DERIVED_DIR: Path
+    ANALYTICS_DIR: Path
 
     RAW_AUTHORS: Path
     RAW_WORKS: Path
@@ -38,6 +39,7 @@ def get_paths(project_root: Path | None = None) -> ProjectPaths:
     data = root / "Data"
     raw = data / "Raw"
     derived = data / "Derived"
+    analytics = data / "Analytics"
     assets = root / "Assets"
     images = assets / "Images"
     graphs = assets / "Graphs"
@@ -47,6 +49,7 @@ def get_paths(project_root: Path | None = None) -> ProjectPaths:
         DATA=data,
         RAW_DIR=raw,
         DERIVED_DIR=derived,
+        ANALYTICS_DIR=analytics,
         ASSETS_DIR=assets,
         IMAGES_DIR=images,
         GRAPHS_DIR=graphs,
