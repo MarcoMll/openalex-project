@@ -48,10 +48,3 @@ def detect_betweenness_centrality(graph, top_percent=5.0):
 
     top_nodes = dict(items[:k]) 
     return top_nodes
-
-
-if __name__ == "__main__":
-    from Scripts.graph.build_networkx_graph import load_graph_from_edges_csv
-
-    graph = load_graph_from_edges_csv()
-    print(detect_betweenness_centrality(graph, 5.0))

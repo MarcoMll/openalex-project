@@ -104,15 +104,3 @@ def compute_average_hub_metric(hubs: Dict[NodeId, float]):
     if not hubs:
         return 0.0
     return sum(hubs.values()) / len(hubs)
-
-if __name__ == "__main__":
-    from Scripts.graph.build_networkx_graph import load_graph_from_edges_csv
-
-    graph = load_graph_from_edges_csv()
-    hubs = detect_hubs(
-        graph,
-        metric="degree",
-        threshold=95.0,
-    )
-    print(hubs)
-    print(f"Average hub degree: {compute_average_hub_metric(hubs)}")

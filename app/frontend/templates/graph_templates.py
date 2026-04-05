@@ -87,7 +87,16 @@ def _characteristics_for_graph(graph_key: str) -> dict[str, Any]:
     stats = _load_scholarnet_report()
     source_key = GRAPH_KEY_TO_CHARACTERISTICS_KEY.get(graph_key, graph_key)
     payload = stats.get(source_key, {})
-    return payload if isinstance(payload, dict) else {}
+    if not isinstance(payload, dict):
+        return {}
+
+    # New report format stores metrics inside "<graph_key>.graph_analytics".
+    # Keep backward compatibility with the old flat format as fallback.
+    analytics = payload.get("graph_analytics")
+    if isinstance(analytics, dict):
+        return analytics
+
+    return payload
 
 
 def _get_main_stats(graph_key: str) -> dict[str, str]:
