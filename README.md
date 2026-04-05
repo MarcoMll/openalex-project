@@ -1,224 +1,188 @@
 # OpenAlex LUISS Co-authorship Network
-Developers: 
+Developers:
 * Marco Malliani 324971
 * Ryder Mills Wood 321481
 
-### Project pipeline
+### Project overview
 
-This project constructs an institution-scoped co-authorship network from OpenAlex data. The final artifact is a weighted, undirected graph where each node is an OpenAlex author ID and each edge weight equals the number of works co-authored by that author pair, restricted to works that include at least two institution authors.
+This project builds an institution-scoped co-authorship network from OpenAlex data.
 
-Repository structure
-- `Assets/`
-  - `Graphs/`
-    - `interactive_graph.html`
-  - `Images/`
-    - `original_graph.png`
-    - `subgraph.png`
-- `Data/`
-  - `Raw/`
-    - `raw_authors.jsonl`
-    - `raw_works.jsonl`
-  - `Derived/`
-    - `derived_works.jsonl`
-    - `hyperedges.jsonl`
-    - `edges.csv`
-- `Scripts/`
-  - `fetch_raw_data.py`
-  - `derive_data.py`
-  - `build_network.py`
-- `utils/`
-  - `project_paths.py`
-  - `interactive_graph_converter.py`
+Final network artifact:
+* undirected weighted graph
+* node = OpenAlex author ID
+* edge weight = number of shared works for that author pair
+* scope = works containing at least two authors from the target institution
+
+---
+
+### Current progress (refactor status)
+
+Completed:
+* split graph logic into dedicated modules (`graph_builder`, `graph_analyzer`, `graph_coloring`, `graph_serialization`)
+* introduced a cleaner pipeline orchestrator (`Scripts/init_pipeline.py`)
+* unified color generation for both visualization and serialization through `GraphColoringArtifacts`
+* updated report loader to use new visualization API and new report shape
+
+In progress:
+* final cleanup/removal of legacy API files
+* minor documentation and compatibility cleanup around old helper scripts
+
+---
+
+### Repository structure (current)
+
+* `Assets/`
+  * `Images/` generated static graph images (`base_graph.png`, `largest_connected_component_graph.png`, etc.)
+  * `Graphs/` interactive HTML graph (`interactive_graph.html`)
+  * `gui/` frontend icons and style assets
+* `Data/`
+  * `Raw/` raw OpenAlex dumps (`raw_authors.jsonl`, `raw_works.jsonl`)
+  * `Derived/` derived artifacts (`derived_works.jsonl`, `hyperedges.jsonl`, `edges.csv`)
+  * `Analytics/` final report (`scholarnet_report.json`)
+* `Scripts/`
+  * `pipeline/` data fetch + derivation
+  * `graph/` graph building/loading/hypergraph modules
+  * `analytics/` graph and hypergraph analytics
+  * `init_pipeline.py` end-to-end orchestration
+* `utils/`
+  * `project_paths.py` project path source of truth
+  * `graph_visualizer.py` static rendering
+  * `graph_coloring.py` coloring artifacts generation
+  * `graph_serialization.py` report writer
+  * `interactive_graph_converter.py` PyVis interactive graph generation
+* `app/frontend/` Streamlit UI
+
+---
+
+### New pipeline (primary API)
+
+Implemented in: `Scripts/init_pipeline.py`
+
+Execution order:
+1. fetch raw data (`Scripts/pipeline/fetch_raw_data.py`)
+2. derive data (`Scripts/pipeline/derive_data.py`)
+3. build network graphs (`Scripts/graph/graph_builder.py`)
+4. build hypernetwork image (`Scripts/graph/hypernetwork_builder.py`)
+5. analyze graphs (`Scripts/analytics/graph_analyzer.py`)
+6. prepare colors once (`utils/graph_coloring.py`)
+7. render static images (`utils/graph_visualizer.py`)
+8. generate interactive graph (`utils/interactive_graph_converter.py`)
+9. serialize final report (`utils/graph_serialization.py`)
+
+---
+
+### Key modules
+
+### `Scripts/graph/graph_builder.py`
+Purpose:
+* reconstructs base graph from `Data/Derived/edges.csv`
+* extracts LCC subgraph
+
+### `Scripts/analytics/graph_analyzer.py`
+Purpose:
+* computes core graph metrics
+* computes communities and hubs
+* returns:
+  * `GraphAnalytics` (metrics)
+  * `AnalysisArtifacts` (best partition + hub nodes)
+
+### `utils/graph_coloring.py`
+Purpose:
+* builds deterministic node-color arrays from analysis artifacts
+* supports:
+  * numeric color IDs (for colormap workflows like `tab20`)
+  * optional HEX palette mapping (if explicitly configured)
+
+### `utils/graph_visualizer.py`
+Purpose:
+* renders and saves static graph images with deterministic layout seed
+* supports either numeric or HEX node colors
+
+### `utils/graph_serialization.py`
+Purpose:
+* writes the final report JSON
+* merges writes by graph key (does not overwrite previous graph section)
+* serializes graph analytics and reconstruction payload
+
+### `Scripts/graph/graphs_loader.py`
+Purpose:
+* reconstructs graphs from `scholarnet_report.json`
+* regenerates static images + hypergraph + interactive graph
+* supports both current and legacy reconstruction config fields where possible
+
+---
+
+### Report format (current)
+
+Output file: `Data/Analytics/scholarnet_report.json`
+
+High-level shape:
+
+```json
+{
+  "base_graph": {
+    "graph_analytics": {
+      "total_nodes": 0,
+      "average_degree": 0.0
+    },
+    "reconstruction_data": {
+      "nodes": [],
+      "edges": [],
+      "graph_config": {
+        "seed": 777,
+        "node_size": 20
+      },
+      "color_partitions": {
+        "communities": [],
+        "hubs": []
+      }
+    }
+  },
+  "lcc": {
+    "graph_analytics": {},
+    "reconstruction_data": {}
+  }
+}
+```
+
+---
+
+### Run instructions
 
 Requirements:
-- Python 3.10+
-- Dependencies:
-  - `pyalex`
-  - `networkx`
-  - `matplotlib`
-  - `pyvis`
+* Python 3.10+
+* dependencies in `requirements.txt`
 
-Minimal installation:
+Install:
 ```bash
 pip install -r requirements.txt
 ```
 
----
+Run full pipeline:
+```bash
+python Scripts/init_pipeline.py
+```
 
-### Script: `fetch_raw_data.py`
-
-Purpose:
-Fetches the raw OpenAlex data needed for downstream network construction:
-1) The set of authors whose `last_known_institutions.id` matches the target institution.
-2) The set of works associated with those authors (via `authorships.author.id`), storing each work’s `id`, `publication_year`, and full `authorships` list of objects.
-
-**Outputs:**
-
-`raw_authors.jsonl` — stores all author IDs related to the target institution.
-
-Example: 
-```jsonl
-{"id": "https://openalex.org/A5080418179"}
-{"id": "https://openalex.org/A5008833108"}
-{"id": "https://openalex.org/A5110725650"}
+Load an existing report and regenerate visual artifacts:
+```python
+from Scripts.graph.graphs_loader import load_graphs
+load_graphs()
 ```
 
 ---
 
-`raw_works.jsonl` — works containing `id`, `publication_year`, `authorships`.
+### Frontend notes
 
-Example:
-> ℹ️ **NOTE**:
-> </br> **In the actual file this appears as one JSON object per line, we have formatted it here for readability.**
-``` 
-{
-  "id": "https://openalex.org/W2108863621",
-  "publication_year": 2011,
-  "authorships": [
-    {
-      "author_position": "first",
-      "author": {
-        "id": "https://openalex.org/A5037980725",
-        "display_name": "Elena Golovko",
-        "orcid": "https://orcid.org/0000-0002-9564-0849"
-      },
-      "institutions": [
-        {
-          "id": "https://openalex.org/I193700539",
-          "display_name": "Tilburg University",
-          "country_code": "NL",
-          "type": "education"
-        }
-      ],
-      "is_corresponding": true
-    },
-    {
-      "author_position": "last",
-      "author": {
-        "id": "https://openalex.org/A5004648400",
-        "display_name": "Giovanni Valentini",
-        "orcid": "https://orcid.org/0000-0002-6252-5262"
-      },
-      "institutions": [
-        {
-          "id": "https://openalex.org/I71209653",
-          "display_name": "Bocconi University",
-          "country_code": "IT",
-          "type": "education"
-        }
-      ],
-      "is_corresponding": false
-    }
-  ]
-}
-``` 
+The Streamlit UI reads analytics from `Data/Analytics/scholarnet_report.json`.
+
+Graph metric cards are now aligned with the new nested analytics structure:
+* `graph_key -> graph_analytics -> metric`
 
 ---
 
-### Script: `derive_data.py`
+### Legacy API note
 
-Purpose:
-Transforms the raw OpenAlex JSONL into progressively more analysis-ready artifacts used for co-authorship network construction.
-
-This script runs three derivation steps (in order):
-1) `derived_works.jsonl`: reduce each raw work to a compact record containing only `work_id`, `publication_year`, and the list of all author IDs on the work.
-2) `hyperedges.jsonl`: for each derived work, keep only the subset of authors who are in the institution author set. Only works with at least 2 institution authors are written (these are the “edge-producing” works).
-3) `edges.csv`: convert each hyperedge (a set of ≥2 institution authors on one work) into all pairwise author combinations and aggregate counts across works as edge weights.
-
-Here is the visual representation of how the data changes step by step:
-1) **Raw Input** (from raw_works.jsonl):
-
-  ``` 
-  # simplified, look for full above
-  
-  {
-    "id": "https://openalex.org/W3045741511",
-    "publication_year": 2020,
-    "authorships": [
-      {
-        "author": {
-          "id": "https://openalex.org/A5008236776",
-          "display_name": "Francesco Cappa"
-        },
-        "institutions": []
-      },
-      [...]
-        "institutions": []
-      }
-    ]
-  }
-  ```
-
-2) **Derived work record** (derived_works.jsonl):
-
-> ℹ️ **NOTE**:
-> </br> **Here as you can see we got rid of most of the `authorship` objects features and only kept authors `id`**
-
-  ``` 
-  {
-    "work_id": "https://openalex.org/W3045741511",
-    "authors": [
-      "https://openalex.org/A5008236776",
-      "https://openalex.org/A5051841971",
-      "https://openalex.org/A5003571840",
-      "https://openalex.org/A5055453377"
-    ],
-    "publication_year": 2020
-  }
-  ```
-
-3) **Hyperedge** (hyperedges.jsonl)
-
-> ℹ️ **NOTE**:
-> </br> **In the hyperedges we are only considering authors from the target institution!**
-
-``` 
-{
-  "work_id": "https://openalex.org/W3045741511",
-  "institution_author_ids": [
-    "https://openalex.org/A5003571840",
-    "https://openalex.org/A5008236776",
-    "https://openalex.org/A5051841971"
-  ],
-  "institution_author_count": 3,
-  "publication_year": 2020
-}
-```
-
-4) Finally, **Pairwise edges** (edges.csv)
-
-| author_id_1                          | author_id_2                          | weight |
-|--------------------------------------|--------------------------------------|--------|
-| https://openalex.org/A5000069300     | https://openalex.org/A5104728998     | 4      |
-| https://openalex.org/A5000252858     | https://openalex.org/A5001719110     | 4      |
-| https://openalex.org/A5000252858     | https://openalex.org/A5008236776     | 12     |
-
----
-
-### Script: `build_networkx_graph.py`
-
-**Purpose:**
-Builds the “baseline” NetworkX graphs from the weighted edge list (`edges.csv`) and produces summary diagnostics that validate the network construction. These NetworkX graphs are treated as the raw graph objects for the next step in the pipeline. The script constructs:
-
-**The original graph:** (full undirected, weighted co-authorship graph, all nodes/edges derived from the dataset)
-![original graph](Assets/Images/original_graph.png)
-
-**The largest-component graph:** (the induced subgraph of the LCC)
-![biggest component graph](Assets/Images/subgraph.png)
-
-> ℹ️ **Why we select the largest connected component:**
-> </br> The full co-authorship graph is fragmented into many disconnected components. This occurs naturally because some author groups never co-author with others within the institution-scoped dataset, resulting any network measures and visualizations become less interpretable on highly disconnected graphs.
-
----
-
-### Script: `interactive_graph_converter.py`
-
-**Purpose:**
-Converts a NetworkX graph (in our case is the biggest_component subgraph) into an interactive HTML visualization using `PyVis`. This interactive graph **is the final output artifact of the project**, suitable for exploration.
-
-**How it works:**
-  - `build_network.py` constructs `Gc` and then calls `generate_interactive_graph(Gc)`
-  - it then outputs an interactive HTML file (that is stored at `Assets/Graphs/`)
+Some legacy scripts are still present during cleanup, but the **primary supported flow** is the new modular pipeline described above.
 
 ---
 
