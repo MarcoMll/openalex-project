@@ -14,6 +14,7 @@ from app.frontend.templates.hypergraph_template import (
     render_hypergraph_summary,
 )
 from app.frontend.templates.interactive_environment_template import render_interactive_environment
+from app.frontend.templates.overall_template import render_overall_conclusion
 
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
@@ -185,11 +186,7 @@ def render_preview_page() -> None:
                 graph_html_path=INTERACTIVE_GRAPH_HTML_PATH,
             )
         else:
-            st.subheader(selected_label)
-            st.markdown(
-                '<div class="preview-overall-placeholder">Overall analytics widget placeholder.</div>',
-                unsafe_allow_html=True,
-            )
+            render_overall_conclusion(title=selected_label)
         if st.button("Back to welcome"):
             st.session_state["current_page"] = "welcome"
             st.rerun()

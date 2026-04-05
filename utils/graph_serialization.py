@@ -5,7 +5,7 @@ from typing import Any
 from utils.project_paths import get_paths
 from utils.graph_visualizer import GraphConfig
 from dataclasses import dataclass, field, asdict
-from Scripts.analytics.graph_analyzer import GraphAnalytics
+from Scripts.analytics.graph_analyzer import GraphAnalytics, HypergraphAnalytics
 from utils.graph_coloring import GraphColoringArtifacts
 
 P = get_paths()
@@ -32,6 +32,11 @@ class GraphData:
     graph_analytics: GraphAnalytics
     reconstruction_data: ReconstructionData
 
+@dataclass
+class HypergraphData:
+    graph_name: str
+    graph_analytics: HypergraphAnalytics
+
 def serialize_edges(graph: nx.Graph):
     edges = [
         {"u": u, "v": v, "weight": data.get("weight", 1.0)}
@@ -39,6 +44,10 @@ def serialize_edges(graph: nx.Graph):
     ]
 
     return edges
+
+def serialize_hypergraph(graph_name: str, graph: Any, graph_analytics: HypergraphAnalytics):
+    hypergraph_data = HypergraphData(graph_name=graph_name, graph_analytics=graph_analytics)
+    save_to_json(hypergraph_data)
 
 def serialize_graph(
     graph_name: str,
@@ -78,11 +87,9 @@ def serialize_graph(
 
     save_to_json(graph_data)
 
-def save_to_json(graph_data: GraphData):
-    serialized_graph_data = {
-        "graph_analytics": asdict(graph_data.graph_analytics),
-        "reconstruction_data": asdict(graph_data.reconstruction_data)
-    }
+def save_to_json(graph_data: GraphData | HypergraphData):
+    payload = asdict(graph_data)
+    graph_name = payload.pop("graph_name")  # ключ верхнего уровня в report
 
     save_path = P.ANALYTICS_DIR / REPORT_FILE_NAME
     save_path.parent.mkdir(parents=True, exist_ok=True)
@@ -98,7 +105,7 @@ def save_to_json(graph_data: GraphData):
         if isinstance(loaded, dict):
             data = loaded
 
-    data[graph_data.graph_name] = serialized_graph_data
+    data[graph_name] = payload
 
     with save_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)

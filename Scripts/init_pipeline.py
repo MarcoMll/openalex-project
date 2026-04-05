@@ -7,9 +7,9 @@ from Scripts.graph.hypernetwork_builder import build_hypergraphx_graph
 from dataclasses import dataclass
 
 from Scripts.graph.graph_builder import build_network_graphs
-from Scripts.analytics.graph_analyzer import analyze_graph
+from Scripts.analytics.graph_analyzer import analyze_graph, analyze_hypergraph
 from utils.graph_coloring import GraphColoringConfig, build_graph_coloring_artifacts
-from utils.graph_serialization import serialize_graph
+from utils.graph_serialization import serialize_graph, serialize_hypergraph
 from utils.graph_visualizer import visualize_and_save_graph, GraphConfig
 from utils.interactive_graph_converter import generate_interactive_graph
 
@@ -20,12 +20,12 @@ class PipelineConfig:
     api_key: str
 
 base_graph_config = GraphConfig(
-    seed=777,
+    seed=123,
     node_size=20
 )
 
 lcc_graph_config = GraphConfig(
-    seed=777,
+    seed=123,
     node_size=20
 )
 
@@ -50,11 +50,12 @@ def init_pipeline(pipeline_config: PipelineConfig, on_status: Callable[[str], No
     lcc_graph = graphs[1]
 
     _emit_status(on_status, "Building a hypernetwork graph")
-    build_hypergraphx_graph(lcc_graph)
+    hypergraph = build_hypergraphx_graph(lcc_graph)
 
     _emit_status(on_status, "Analyzing network")
     base_graph_analytics = analyze_graph(base_graph, exclude={"community", "hubs"})
     lcc_graph_analytics = analyze_graph(lcc_graph, exclude=set())
+    hypergraph_analytics = analyze_hypergraph(hypergraph)
 
     lcc_graph_coloring = build_graph_coloring_artifacts(
         lcc_graph,
@@ -95,6 +96,7 @@ def init_pipeline(pipeline_config: PipelineConfig, on_status: Callable[[str], No
         lcc_graph_config,
         graph_coloring=lcc_graph_coloring,
     )
+    serialize_hypergraph("hypergraph", hypergraph, hypergraph_analytics)
 
     _emit_status(on_status, "Completed")
 

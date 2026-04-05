@@ -1,11 +1,10 @@
-import networkx as nx
-
 from dataclasses import dataclass, field
-from typing import Literal
 
 from Scripts.analytics.metrics.networkx_metrics_calculator import *
+from Scripts.analytics.metrics.hypernetwork_metrics_calculator import *
 from Scripts.analytics.community_detection import find_communities, compute_average_community_density
 from Scripts.analytics.hub_detection import detect_hubs, compute_average_hub_metric
+from hypergraphx.core.hypergraph import Hypergraph
 
 @dataclass
 class GraphAnalytics:
@@ -19,6 +18,12 @@ class GraphAnalytics:
     number_of_hubs: int
     average_community_density: float
     average_hub_degree: float
+
+@dataclass
+class HypergraphAnalytics:
+    hyperdensity: float
+    average_hyperdegree: float
+    group_size_proportions: dict
 
 @dataclass
 class AnalysisArtifacts:
@@ -67,3 +72,12 @@ def analyze_graph(graph: nx.Graph, exclude: set[ExcludeOption] = None):
     )
 
     return graph_analytics, analysis_artifacts
+
+def analyze_hypergraph(graph: Hypergraph):
+    hypergraph_analytics = HypergraphAnalytics(
+        hyperdensity=-1,
+        average_hyperdegree=compute_average_hyper_degree_per_author(graph),
+        group_size_proportions=compute_group_size_proportions(graph),
+    )
+
+    return hypergraph_analytics

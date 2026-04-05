@@ -18,10 +18,10 @@ RAW_DIR = P.RAW_DIR
 AUTHORS_PATH = P.RAW_AUTHORS
 WORKS_PATH = P.RAW_WORKS
 
-PER_PAGE = 200   # recommended by the documentation
-BATCH_SIZE = 50  # OpenAlex recommends batching lists of known IDs,
-                 # 50 is the max allowed by the API
-                 # (source: https://docs.openalex.org/api-guide-for-llms#id-2.-use-batch-id-lookups)
+PER_PAGE = 200    # recommended by the documentation
+BATCH_SIZE = 100  # OpenAlex recommends batching lists of known IDs,
+                  # 100 is the max allowed by the API
+                  # (source: https://docs.openalex.org/api-guide-for-llms#id-2.-use-batch-id-lookups)
 
 def batched(iterable, batch_size=BATCH_SIZE): # batching to reduce the amount of API requests
     iterator = iter(iterable)
@@ -135,13 +135,24 @@ def save_data(query, out_path: Path, existing_ids: Set[str] = None):
             if lines:
                 file.write("\n".join(lines) + "\n")
 
-def fetch_raw_data_from_api(pipeline_config, on_status: Callable[[str], None] | None = None):
+def reset_raw_data_cache(paths: tuple[Path, ...] = (AUTHORS_PATH, WORKS_PATH)) -> None:
+    for path in paths:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("", encoding="utf-8")
+
+def fetch_raw_data_from_api(
+    pipeline_config,
+    on_status: Callable[[str], None] | None = None,
+    reset_raw_data: bool = True,
+):
     if pipeline_config.api_email:
         config.email = pipeline_config.api_email
     if pipeline_config.api_key:
         config.api_key = pipeline_config.api_key
 
     institution_id = (pipeline_config.institution_id or "").strip() or LUISS_INSTITUTION_ID
+    if reset_raw_data:
+        reset_raw_data_cache()
 
     if on_status is not None:
         on_status("Fetching authors")

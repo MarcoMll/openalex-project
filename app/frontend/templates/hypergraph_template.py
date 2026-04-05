@@ -14,11 +14,14 @@ from app.frontend.templates.graph_templates import (
 
 def _get_hypergraph_stats() -> dict[str, str]:
     characteristics = _characteristics_for_graph("hypergraph")
+    average_hyperdegree = characteristics.get("average_hyperdegree")
+    if average_hyperdegree is None:
+        average_hyperdegree = characteristics.get("average_hyper_degree_per_author")
 
     return {
         "Hyperdensity": "0.42",
         "Average Hyperdegree": _format_or_minus_one(
-            characteristics.get("average_hyper_degree_per_author"),
+            average_hyperdegree,
             precision=2,
         ),
     }
