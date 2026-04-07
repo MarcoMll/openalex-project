@@ -39,7 +39,7 @@ def _emit_status(on_status: Callable[[str], None] | None, message: str) -> None:
         on_status(message)
 
 def init_pipeline(pipeline_config: PipelineConfig, on_status: Callable[[str], None] | None = None) -> None:
-    fetch_raw_data_from_api(pipeline_config, on_status=on_status)
+    fetch_raw_data_from_api(pipeline_config, on_status=on_status, reset_raw_data=True)
 
     _emit_status(on_status, "Deriving data")
     derive_raw_data()
@@ -99,11 +99,3 @@ def init_pipeline(pipeline_config: PipelineConfig, on_status: Callable[[str], No
     serialize_hypergraph("hypergraph", hypergraph, hypergraph_analytics)
 
     _emit_status(on_status, "Completed")
-
-if __name__ == "__main__":
-    pipeline_config = PipelineConfig(
-        institution_id="",
-        api_email="",
-        api_key="",
-    )
-    init_pipeline(pipeline_config)

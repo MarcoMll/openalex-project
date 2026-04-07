@@ -19,8 +19,8 @@ AUTHORS_PATH = P.RAW_AUTHORS
 WORKS_PATH = P.RAW_WORKS
 
 PER_PAGE = 200    # recommended by the documentation
-BATCH_SIZE = 100  # OpenAlex recommends batching lists of known IDs,
-                  # 100 is the max allowed by the API
+BATCH_SIZE = 50  # OpenAlex recommends batching lists of known IDs,
+                  # 50 is the max allowed by the API
                   # (source: https://docs.openalex.org/api-guide-for-llms#id-2.-use-batch-id-lookups)
 
 def batched(iterable, batch_size=BATCH_SIZE): # batching to reduce the amount of API requests
@@ -47,6 +47,7 @@ def fetch_authors_batch_works(batch):
         Works()
         .filter(**{"authorships.author.id": or_value})
         .select(["id", "publication_year", "authorships", "topics", "keywords"])
+        #.select("id")
     )
 
     def compact_work(entry):
