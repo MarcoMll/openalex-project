@@ -61,7 +61,7 @@ def render_overall_conclusion(title: str) -> None:
     lcc_characteristics = _characteristics_for_graph("lcc")
     if not isinstance(lcc_characteristics, dict) or not lcc_characteristics:
         st.warning(
-            "No LCC analytics found in report. Run the pipeline and serialization first."
+            "No LCC analytics found in report. Run the data_aggregation and serialization first."
         )
         return
 

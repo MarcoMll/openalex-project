@@ -1,39 +1,33 @@
 import json
 import sys
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import networkx as nx
 
+from pathlib import Path
+
 try:
     from utils.project_paths import get_paths
+    from utils.hypergraph_config import HypergraphConfig
 except ModuleNotFoundError:
     project_root = Path(__file__).resolve().parents[2]
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
     from utils.project_paths import get_paths
+    from utils.hypergraph_config import HypergraphConfig
 
 P = get_paths()
 HYPEREDGES_PATH = P.HYPEREDGES
 IMAGES_DIR = P.IMAGES_DIR
 
 HYPERGRAPH_IMAGE_NAME = "hypergraph_hgx.png"
-HYPERGRAPH_NODE_SIZE = 15
-HYPERGRAPH_NODE_COLOR = "#63c791"
 HYPERGRAPH_EDGE_COLOR = "black"
 HYPERGRAPH_EDGE_WIDTH = 0.1
 HYPERGRAPH_CLOUD_ALPHA = 0.5
 HYPERGRAPH_FIGURE_SIZE = (18, 10)
 HYPERGRAPH_X_STRETCH = 1.35
-DEFAULT_LAYOUT_SEED = 777
 PAIRWISE_EDGE_COLOR = "black"
 PAIRWISE_EDGE_WIDTH = 0.2
 PAIRWISE_EDGE_ALPHA = 0.1
-
-HYPEREDGE_COLOR_SIZE_3 = "#4DA3FF"
-HYPEREDGE_COLOR_SIZE_4 = "#8E44AD"
-HYPEREDGE_COLOR_SIZE_5 = "#E6194B" #800000
-HYPEREDGE_COLOR_SIZE_6_PLUS = "#E6194B" #F58231
 
 def load_hyperedges(path: Path):
     hyperedges = []
@@ -101,23 +95,12 @@ def _get_hyperedge_category(size: int):
     return "size_6_plus"
 
 
-def build_hyperedge_color_maps(hyperedges: list[tuple]):
+def build_hyperedge_color_maps(
+    hyperedges: list[tuple],
+    hypergraph_config: HypergraphConfig,
+):
     border_colors = {}
     fill_colors = {}
-    color_to_group = {}
-
-    color_for_category = {
-        "size_3": HYPEREDGE_COLOR_SIZE_3,
-        "size_4": HYPEREDGE_COLOR_SIZE_4,
-        "size_5": HYPEREDGE_COLOR_SIZE_5,
-        "size_6_plus": HYPEREDGE_COLOR_SIZE_6_PLUS,
-    }
-    group_label_for_category = {
-        "size_3": "groups of size 3",
-        "size_4": "groups of size 4",
-        "size_5": "groups of size 5",
-        "size_6_plus": "groups of size 6+",
-    }
 
     unique_sizes = sorted({len(hyperedge) for hyperedge in hyperedges})
     for size in unique_sizes:
@@ -125,11 +108,11 @@ def build_hyperedge_color_maps(hyperedges: list[tuple]):
         if category is None:
             continue
         order = size - 1  # HGX keys color maps by hyperedge order (= size - 1)
-        border_colors[order] = color_for_category[category]
-        fill_colors[order] = color_for_category[category]
-        color_to_group[color_for_category[category]] = group_label_for_category[category]
+        color = hypergraph_config.color_for_group_size(size)
+        border_colors[order] = color
+        fill_colors[order] = color
 
-    return border_colors, fill_colors, color_to_group
+    return border_colors, fill_colors
 
 
 def build_hypergraph(hyperedges: list[tuple]):
@@ -141,9 +124,10 @@ def save_hypergraph_images(
     hypergraph,
     hyperedges: list[tuple],
     images_dir: Path,
+    hypergraph_config: HypergraphConfig,
     node_positions: dict | None = None,
     pairwise_edges: list[tuple[str, str]] | None = None,
-) -> dict[str, str]:
+):
     from hypergraphx.viz.draw_hypergraph import draw_hypergraph
 
     images_dir.mkdir(parents=True, exist_ok=True)
@@ -165,16 +149,16 @@ def save_hypergraph_images(
         if len(positions_for_hypergraph) == len(hypergraph_nodes):
             draw_kwargs["pos"] = positions_for_hypergraph
 
-    hyperedge_color_by_order, hyperedge_facecolor_by_order, color_to_group = (
-        build_hyperedge_color_maps(hyperedges)
+    hyperedge_color_by_order, hyperedge_facecolor_by_order = (
+        build_hyperedge_color_maps(hyperedges, hypergraph_config)
     )
 
     plt.figure(figsize=HYPERGRAPH_FIGURE_SIZE)
     draw_hypergraph(
         hypergraph,
-        node_size=HYPERGRAPH_NODE_SIZE,
-        node_color=HYPERGRAPH_NODE_COLOR,
-        node_facecolor=HYPERGRAPH_NODE_COLOR,
+        node_size=hypergraph_config.node_size,
+        node_color=hypergraph_config.node_color,
+        node_facecolor=hypergraph_config.node_color,
         edge_color=HYPERGRAPH_EDGE_COLOR,
         hyperedge_color_by_order=hyperedge_color_by_order,
         hyperedge_facecolor_by_order=hyperedge_facecolor_by_order,
@@ -200,14 +184,16 @@ def save_hypergraph_images(
     plt.tight_layout()
     plt.savefig(images_dir / HYPERGRAPH_IMAGE_NAME, dpi=300, bbox_inches="tight", pad_inches=0)
     plt.close()
-    return color_to_group
 
 
 def build_hypergraphx_graph(
     graph: nx.Graph,
-    return_color_groups: bool = False,
-    layout_seed: int = DEFAULT_LAYOUT_SEED,
+    hypergraph_config: HypergraphConfig | None = None,
+    hyperedges_list: list = None,
 ):
+    if hypergraph_config is None:
+        hypergraph_config = HypergraphConfig()
+
     if not isinstance(graph, nx.Graph):
         raise TypeError("build_hypergraphx_graph expects an input nx.Graph as lcc_graph.")
 
@@ -215,9 +201,13 @@ def build_hypergraphx_graph(
         print("LCC graph is empty.")
         return None
 
-    hyperedges = load_hyperedges(HYPEREDGES_PATH)
+    if hyperedges_list is None:
+        hyperedges = load_hyperedges(HYPEREDGES_PATH)
+    else:
+        hyperedges = hyperedges_list
+
     lcc_nodes = set(graph.nodes())
-    lcc_positions = nx.spring_layout(graph, seed=layout_seed)
+    lcc_positions = nx.spring_layout(graph, seed=hypergraph_config.seed)
     lcc_pairwise_edges = list(graph.edges())
     lcc_hyperedges = filter_hyperedges_by_nodes(hyperedges, lcc_nodes)
 
@@ -226,15 +216,13 @@ def build_hypergraphx_graph(
         return None
 
     hypergraph = build_hypergraph(lcc_hyperedges)
-    color_to_group = save_hypergraph_images(
+    save_hypergraph_images(
         hypergraph,
         lcc_hyperedges,
         IMAGES_DIR,
+        hypergraph_config=hypergraph_config,
         node_positions=lcc_positions,
         pairwise_edges=lcc_pairwise_edges,
     )
     print("HGX LCC hypergraph image created.")
-    if return_color_groups:
-        return hypergraph, color_to_group
-
     return hypergraph

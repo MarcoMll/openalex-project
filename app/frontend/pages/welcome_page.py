@@ -79,7 +79,7 @@ def render_welcome_page() -> None:
                     "api_email": email.strip(),
                     "api_key": api_key.strip(),
                 }
-                st.session_state["pipeline_status"] = "Preparing pipeline"
+                st.session_state["pipeline_status"] = "Preparing data_aggregation"
                 st.session_state["pipeline_error"] = ""
                 st.session_state["pipeline_complete"] = False
                 st.session_state["pipeline_started"] = False

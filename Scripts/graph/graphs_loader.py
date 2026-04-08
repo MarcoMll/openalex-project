@@ -1,12 +1,14 @@
 import json
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
 import networkx as nx
 
 from Scripts.graph.hypernetwork_builder import build_hypergraphx_graph
+from utils.hypergraph_config import HypergraphConfig
 from utils.graph_visualizer import GraphConfig, visualize_and_save_graph
-from utils.project_paths import get_paths
+from utils.project_paths import get_paths, verify_paths
 
 P = get_paths()
 
@@ -71,6 +73,66 @@ def _reconstruct_graph(reconstruction_data: dict[str, Any]) -> nx.Graph:
 
     return graph
 
+def _normalize_hyperedge_nodes(raw_nodes: Any) -> tuple[Any, ...] | None:
+    if not isinstance(raw_nodes, Iterable) or isinstance(raw_nodes, (str, bytes)):
+        return None
+
+    normalized_nodes: list[Any] = []
+    for node in raw_nodes:
+        if node is None:
+            continue
+        if node in normalized_nodes:
+            continue
+        normalized_nodes.append(node)
+
+    if len(normalized_nodes) < 2:
+        return None
+
+    return tuple(normalized_nodes)
+
+def _extract_hyperedges(reconstruction_data: dict[str, Any],):
+    raw_hyperedges = reconstruction_data.get("hyperedges")
+
+    hyperedges: list[tuple[Any, ...]] = []
+
+    for raw_hyperedge in raw_hyperedges:
+        raw_nodes = raw_hyperedge
+
+        normalized_hyperedge = _normalize_hyperedge_nodes(raw_nodes)
+        if normalized_hyperedge is None:
+            continue
+
+        hyperedges.append(normalized_hyperedge)
+
+    return hyperedges
+
+def _resolve_hyperedges(hypergraph_section: dict[str, Any], report_path: Path,):
+    reconstruction_data = _require_reconstruction_data(
+        hypergraph_section, "hypergraph", report_path
+    )
+    return _extract_hyperedges(reconstruction_data)
+
+
+def _resolve_hypergraph_config(
+    hypergraph_section: dict[str, Any],
+    report_path: Path,
+    fallback_seed: int,
+) -> HypergraphConfig:
+    reconstruction_data = _require_reconstruction_data(
+        hypergraph_section, "hypergraph", report_path
+    )
+
+    raw_hypergraph_config = reconstruction_data.get("hypergraph_config")
+    if isinstance(raw_hypergraph_config, dict):
+        candidate_payload = dict(raw_hypergraph_config)
+        if "seed" not in candidate_payload:
+            candidate_payload["seed"] = fallback_seed
+        try:
+            return HypergraphConfig.from_dict(candidate_payload)
+        except ValueError:
+            pass
+
+    return HypergraphConfig(seed=fallback_seed)
 
 def _coerce_seed(reconstruction_data: dict[str, Any], fallback_seed: int) -> int:
     graph_config = reconstruction_data.get("graph_config")
@@ -84,7 +146,6 @@ def _coerce_seed(reconstruction_data: dict[str, Any], fallback_seed: int) -> int
         return raw_seed
 
     return fallback_seed
-
 
 def _coerce_node_size(
     reconstruction_data: dict[str, Any],
@@ -154,6 +215,8 @@ def _generate_interactive_graph(lcc_graph: nx.Graph) -> None:
 
 
 def load_graphs(report_path: Path | None = None):
+    verify_paths()
+
     resolved_report_path = report_path or (P.ANALYTICS_DIR / REPORT_FILE_NAME)
     report = _load_report(resolved_report_path)
 
@@ -227,7 +290,20 @@ def load_graphs(report_path: Path | None = None):
         node_colors=lcc_hubs_colors,
     )
 
-    hypergraph = build_hypergraphx_graph(lcc_graph, layout_seed=lcc_seed)
+    hypergraph_section = _require_graph_section(
+        report, "hypergraph", resolved_report_path
+    )
+    hyperedges = _resolve_hyperedges(hypergraph_section, resolved_report_path)
+    hypergraph_config = _resolve_hypergraph_config(
+        hypergraph_section,
+        resolved_report_path,
+        lcc_seed,
+    )
+    hypergraph = build_hypergraphx_graph(
+        lcc_graph,
+        hypergraph_config=hypergraph_config,
+        hyperedges_list=hyperedges,
+    )
     _generate_interactive_graph(lcc_graph)
 
     print("Loading graphs completed.")

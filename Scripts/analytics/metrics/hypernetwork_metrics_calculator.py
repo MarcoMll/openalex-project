@@ -3,8 +3,7 @@ from collections.abc import Iterable
 from typing import Any
 
 
-def _extract_hyperedges(hypergraph: Any) -> list[tuple[Any, ...]]:
-    """Extract hyperedges from different hypergraph-like inputs."""
+def extract_hyperedges(hypergraph: Any) -> list[tuple[Any, ...]]:
     if hypergraph is None:
         return []
 
@@ -40,7 +39,7 @@ def _extract_hyperedges(hypergraph: Any) -> list[tuple[Any, ...]]:
             hyperedges.append(nodes)
 
     return hyperedges
-
+    # [('A', 'B', 'C'), ('D', 'E'), ('X', 'Y', 'Z')]
 
 def compute_group_size_proportions(
     hypergraph: Any,
@@ -52,7 +51,7 @@ def compute_group_size_proportions(
     Example output with ``as_percentage=True``:
     {2: 30.0, 3: 20.0, 4: 50.0}
     """
-    hyperedges = _extract_hyperedges(hypergraph)
+    hyperedges = extract_hyperedges(hypergraph)
     if len(hyperedges) == 0:
         return {}
 
@@ -74,7 +73,7 @@ def compute_average_hyper_degree_per_author(
     precision: int = 2,
 ) -> float:
     """Return the average number of groups each author belongs to."""
-    hyperedges = _extract_hyperedges(hypergraph)
+    hyperedges = extract_hyperedges(hypergraph)
     if len(hyperedges) == 0:
         return 0.0
 

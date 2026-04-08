@@ -59,3 +59,19 @@ def get_paths(project_root: Path | None = None) -> ProjectPaths:
         HYPEREDGES=derived / "hyperedges.jsonl",
         EDGES_CSV=derived / "edges.csv",
     )
+
+
+def verify_paths(project_root: Path | None = None) -> ProjectPaths:
+    paths = get_paths(project_root)
+    required_dirs = (
+        paths.DATA,
+        paths.RAW_DIR,
+        paths.DERIVED_DIR,
+        paths.ANALYTICS_DIR,
+        paths.ASSETS_DIR,
+        paths.IMAGES_DIR,
+        paths.GRAPHS_DIR,
+    )
+    for directory in required_dirs:
+        directory.mkdir(parents=True, exist_ok=True)
+    return paths

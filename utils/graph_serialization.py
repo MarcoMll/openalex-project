@@ -4,8 +4,10 @@ import json
 from typing import Any
 from utils.project_paths import get_paths
 from utils.graph_visualizer import GraphConfig
+from utils.hypergraph_config import HypergraphConfig
 from dataclasses import dataclass, field, asdict
 from Scripts.analytics.graph_analyzer import GraphAnalytics, HypergraphAnalytics
+from Scripts.analytics.metrics.hypernetwork_metrics_calculator import extract_hyperedges
 from utils.graph_coloring import GraphColoringArtifacts
 
 P = get_paths()
@@ -17,7 +19,7 @@ class ColorPartitions:
     hubs: list[Any] = field(default_factory=list)
 
 @dataclass
-class ReconstructionData:
+class GraphReconstructionData:
     # basic data
     nodes: list[str] = field(default_factory=list)
     edges: list[dict] = field(default_factory=list)
@@ -27,15 +29,21 @@ class ReconstructionData:
     color_partitions: ColorPartitions = field(default_factory=ColorPartitions)
 
 @dataclass
+class HypergraphReconstructionData:
+    hyperedges: list
+    hypergraph_config: HypergraphConfig = field(default_factory=HypergraphConfig)
+
+@dataclass
 class GraphData:
     graph_name: str
     graph_analytics: GraphAnalytics
-    reconstruction_data: ReconstructionData
+    reconstruction_data: GraphReconstructionData
 
 @dataclass
 class HypergraphData:
     graph_name: str
     graph_analytics: HypergraphAnalytics
+    reconstruction_data: HypergraphReconstructionData
 
 def serialize_edges(graph: nx.Graph):
     edges = [
@@ -45,8 +53,21 @@ def serialize_edges(graph: nx.Graph):
 
     return edges
 
-def serialize_hypergraph(graph_name: str, graph: Any, graph_analytics: HypergraphAnalytics):
-    hypergraph_data = HypergraphData(graph_name=graph_name, graph_analytics=graph_analytics)
+def serialize_hypergraph(
+    graph_name: str,
+    graph: Any,
+    graph_analytics: HypergraphAnalytics,
+    hypergraph_config: HypergraphConfig | None = None,
+):
+    if hypergraph_config is None:
+        hypergraph_config = HypergraphConfig()
+
+    reconstruction_data = HypergraphReconstructionData(
+        hyperedges=extract_hyperedges(graph),
+        hypergraph_config=hypergraph_config,
+    )
+    hypergraph_data = HypergraphData(graph_name=graph_name, graph_analytics=graph_analytics,
+                                     reconstruction_data=reconstruction_data)
     save_to_json(hypergraph_data)
 
 def serialize_graph(
@@ -72,7 +93,7 @@ def serialize_graph(
         hubs=hub_colors if hub_colors is not None else [],
     )
 
-    reconstruction_data = ReconstructionData(
+    reconstruction_data = GraphReconstructionData(
         nodes=list(graph.nodes),
         edges=serialize_edges(graph),
         graph_config=graph_config,

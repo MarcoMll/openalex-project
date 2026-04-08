@@ -160,7 +160,7 @@ pip install -r requirements.txt
 
 Run full pipeline:
 ```bash
-python Scripts/init_pipeline.py
+python Scripts/pipeline.py
 ```
 
 Load an existing report and regenerate visual artifacts:

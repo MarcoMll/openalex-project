@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 import streamlit as st
+from Scripts.pipeline import PipelineConfig, initialize_pipeline
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 if str(ROOT_DIR) not in sys.path:
@@ -72,8 +73,6 @@ def _render_footer_logo(logo_uri: str) -> None:
 
 
 def _run_pipeline(pipeline_config_data: dict, status_placeholder) -> None:
-    from Scripts.init_pipeline import PipelineConfig, init_pipeline
-
     def update_status(message: str) -> None:
         st.session_state["pipeline_status"] = message
         status_placeholder.markdown(_status_markup(message), unsafe_allow_html=True)
@@ -89,7 +88,7 @@ def _run_pipeline(pipeline_config_data: dict, status_placeholder) -> None:
     )
 
     try:
-        init_pipeline(pipeline_config, on_status=update_status)
+        initialize_pipeline(pipeline_config, on_status=update_status)
         st.session_state["pipeline_complete"] = True
     except Exception as exc:
         st.session_state["pipeline_error"] = str(exc)

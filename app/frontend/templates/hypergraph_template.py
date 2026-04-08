@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 import streamlit as st
+from utils.hypergraph_config import HypergraphConfig
 
 from app.frontend.templates.graph_templates import (
     _characteristics_for_graph,
     _format_or_minus_one,
     _inject_graph_template_styles,
+    _reconstruction_data_for_graph,
 )
 
 
@@ -48,103 +49,21 @@ def _get_hypergraph_group_size_proportions() -> dict[int, float]:
     return proportions
 
 
-def _get_hypergraph_color_to_group() -> dict[str, str]:
-    characteristics = _characteristics_for_graph("hypergraph")
-    raw_color_to_group = characteristics.get("color_to_group", {})
-    if not isinstance(raw_color_to_group, dict):
-        return {}
-
-    color_to_group: dict[str, str] = {}
-    for raw_color, raw_group in raw_color_to_group.items():
-        if not isinstance(raw_color, str) or not isinstance(raw_group, str):
-            continue
-        color = raw_color.strip()
-        group = raw_group.strip()
-        if color and group:
-            color_to_group[color] = group
-
-    return color_to_group
+def _get_hypergraph_config() -> HypergraphConfig:
+    reconstruction_data = _reconstruction_data_for_graph("hypergraph")
+    raw_hypergraph_config = reconstruction_data.get("hypergraph_config")
+    try:
+        return HypergraphConfig.from_dict(raw_hypergraph_config)
+    except ValueError:
+        return HypergraphConfig()
 
 
-def _size_to_color_map(color_to_group: dict[str, str]) -> tuple[dict[int, str], str | None]:
-    size_to_color: dict[int, str] = {}
-    size_6_plus_color: str | None = None
-
-    for color, group_label in color_to_group.items():
-        normalized = group_label.lower()
-
-        if ">=6" in normalized or "6+" in normalized:
-            size_6_plus_color = color
-            continue
-
-        match = re.search(r"size\s*(\d+)", normalized)
-        if not match:
-            continue
-
-        size = int(match.group(1))
-        if size >= 2:
-            size_to_color[size] = color
-
-    return size_to_color, size_6_plus_color
+def _colors_for_group_sizes(group_sizes: list[int], config: HypergraphConfig) -> list[str]:
+    return [config.color_for_group_size(size) for size in group_sizes]
 
 
-def _size_to_label_map(color_to_group: dict[str, str]) -> tuple[dict[int, str], str | None]:
-    size_to_label: dict[int, str] = {}
-    size_6_plus_label: str | None = None
-
-    for group_label in color_to_group.values():
-        normalized = group_label.lower()
-
-        if ">=6" in normalized or "6+" in normalized:
-            size_6_plus_label = group_label
-            continue
-
-        match = re.search(r"size\s*(\d+)", normalized)
-        if not match:
-            continue
-
-        size = int(match.group(1))
-        if size >= 2:
-            size_to_label[size] = group_label
-
-    return size_to_label, size_6_plus_label
-
-
-def _colors_for_group_sizes(group_sizes: list[int]) -> list[str]:
-    gray_for_two = "#cfd6e0"
-    fallback_color = "#63c791"
-
-    color_to_group = _get_hypergraph_color_to_group()
-    size_to_color, size_6_plus_color = _size_to_color_map(color_to_group)
-
-    colors: list[str] = []
-    for size in group_sizes:
-        if size == 2:
-            colors.append(gray_for_two)
-            continue
-        if size in size_to_color:
-            colors.append(size_to_color[size])
-            continue
-        if size >= 6 and size_6_plus_color:
-            colors.append(size_6_plus_color)
-            continue
-        colors.append(fallback_color)
-
-    return colors
-
-
-def _legend_label_for_size(
-    size: int,
-    size_to_label: dict[int, str],
-    size_6_plus_label: str | None,
-) -> str:
-    if size == 2:
-        return "groups of size 2"
-    if size in size_to_label:
-        return size_to_label[size]
-    if size >= 6 and size_6_plus_label:
-        return size_6_plus_label
-    return f"groups of size {size}"
+def _legend_label_for_size(size: int, config: HypergraphConfig) -> str:
+    return config.label_for_group_size(size)
 
 
 def _inject_hypergraph_template_styles() -> None:
@@ -181,11 +100,10 @@ def render_hypergraph_group_size_piechart() -> None:
 
     import matplotlib.pyplot as plt
 
+    hypergraph_config = _get_hypergraph_config()
     sorted_sizes = sorted(group_size_proportions.keys())
     values = [group_size_proportions[size] for size in sorted_sizes]
-    colors = _colors_for_group_sizes(sorted_sizes)
-    color_to_group = _get_hypergraph_color_to_group()
-    size_to_label, size_6_plus_label = _size_to_label_map(color_to_group)
+    colors = _colors_for_group_sizes(sorted_sizes, hypergraph_config)
 
     st.subheader("Group size proportions")
 
@@ -204,7 +122,7 @@ def render_hypergraph_group_size_piechart() -> None:
     _inject_hypergraph_template_styles()
     legend_cards = []
     for size, value, color in zip(sorted_sizes, values, colors):
-        label = _legend_label_for_size(size, size_to_label, size_6_plus_label)
+        label = _legend_label_for_size(size, hypergraph_config)
         legend_cards.append(
             (
                 '<div class="hypergraph-legend-card">'
