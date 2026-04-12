@@ -73,6 +73,19 @@ def _reconstruct_graph(reconstruction_data: dict[str, Any]) -> nx.Graph:
 
     return graph
 
+
+def _reconstruct_lcc_graph(
+    base_graph: nx.Graph,
+    reconstruction_data: dict[str, Any],
+) -> nx.Graph:
+    raw_nodes = reconstruction_data.get("nodes", [])
+    if isinstance(raw_nodes, list) and raw_nodes:
+        lcc_nodes = [node for node in raw_nodes if node in base_graph]
+        if len(lcc_nodes) == len(raw_nodes):
+            return base_graph.subgraph(lcc_nodes).copy()
+
+    return _reconstruct_graph(reconstruction_data)
+
 def _normalize_hyperedge_nodes(raw_nodes: Any) -> tuple[Any, ...] | None:
     if not isinstance(raw_nodes, Iterable) or isinstance(raw_nodes, (str, bytes)):
         return None
@@ -231,7 +244,7 @@ def load_graphs(report_path: Path | None = None):
     )
 
     base_graph = _reconstruct_graph(base_reconstruction_data)
-    lcc_graph = _reconstruct_graph(lcc_reconstruction_data)
+    lcc_graph = _reconstruct_lcc_graph(base_graph, lcc_reconstruction_data)
 
     base_seed = _coerce_seed(base_reconstruction_data, DEFAULT_SEED)
     lcc_seed = _coerce_seed(lcc_reconstruction_data, DEFAULT_SEED)

@@ -1,12 +1,12 @@
 {
   "base_graph": {
     "graph_analytics": {
-      "total_nodes": 370,
-      "average_degree": 2.902702702702703,
-      "average_strength": 7.594594594594595,
-      "density": 0.007866402988354207,
-      "weighted_density": 0.0004677626628846141,
-      "average_normalized_strength_of_edges": 0.059463348569493826,
+      "total_nodes": 375,
+      "average_degree": 2.848,
+      "average_strength": 7.248,
+      "density": 0.007614973262032086,
+      "weighted_density": 0.0004404472532814779,
+      "average_normalized_strength_of_edges": 0.05783963227783452,
       "number_of_communities": -1,
       "number_of_hubs": -1,
       "average_community_density": -1,
@@ -150,7 +150,6 @@
         "https://openalex.org/A5031854612",
         "https://openalex.org/A5054053617",
         "https://openalex.org/A5057032387",
-        "https://openalex.org/A5086186456",
         "https://openalex.org/A5090476587",
         "https://openalex.org/A5098711752",
         "https://openalex.org/A5103636589",
@@ -341,6 +340,8 @@
         "https://openalex.org/A5118962610",
         "https://openalex.org/A5074048382",
         "https://openalex.org/A5114248708",
+        "https://openalex.org/A5092298489",
+        "https://openalex.org/A5133266657",
         "https://openalex.org/A5076731879",
         "https://openalex.org/A5078747923",
         "https://openalex.org/A5079642496",
@@ -351,6 +352,7 @@
         "https://openalex.org/A5086443843",
         "https://openalex.org/A5106349017",
         "https://openalex.org/A5087752279",
+        "https://openalex.org/A5102385949",
         "https://openalex.org/A5102651812",
         "https://openalex.org/A5119239738",
         "https://openalex.org/A5089043245",
@@ -383,7 +385,10 @@
         "https://openalex.org/A5121788863",
         "https://openalex.org/A5121789242",
         "https://openalex.org/A5123958902",
-        "https://openalex.org/A5123977080"
+        "https://openalex.org/A5123977080",
+        "https://openalex.org/A5133120181",
+        "https://openalex.org/A5133129777",
+        "https://openalex.org/A5133135329"
       ],
       "edges": [
         {
@@ -1039,6 +1044,16 @@
         {
           "u": "https://openalex.org/A5032382047",
           "v": "https://openalex.org/A5119195389",
+          "weight": 1.0
+        },
+        {
+          "u": "https://openalex.org/A5074496477",
+          "v": "https://openalex.org/A5092298489",
+          "weight": 4.0
+        },
+        {
+          "u": "https://openalex.org/A5074496477",
+          "v": "https://openalex.org/A5133266657",
           "weight": 1.0
         },
         {
@@ -2183,11 +2198,6 @@
         },
         {
           "u": "https://openalex.org/A5014425589",
-          "v": "https://openalex.org/A5086186456",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5014425589",
           "v": "https://openalex.org/A5090476587",
           "weight": 2.0
         },
@@ -2200,56 +2210,6 @@
           "u": "https://openalex.org/A5014425589",
           "v": "https://openalex.org/A5103636589",
           "weight": 5.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5023468601",
-          "weight": 2.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5027309652",
-          "weight": 7.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5031344191",
-          "weight": 10.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5044822150",
-          "weight": 25.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5052183240",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5075043934",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5083864640",
-          "weight": 5.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5102864628",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5103636589",
-          "weight": 3.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5117514713",
-          "weight": 1.0
         },
         {
           "u": "https://openalex.org/A5090476587",
@@ -2837,14 +2797,29 @@
           "weight": 1.0
         },
         {
+          "u": "https://openalex.org/A5092298489",
+          "v": "https://openalex.org/A5133266657",
+          "weight": 1.0
+        },
+        {
           "u": "https://openalex.org/A5083864640",
           "v": "https://openalex.org/A5084319994",
           "weight": 3.0
         },
         {
           "u": "https://openalex.org/A5087752279",
+          "v": "https://openalex.org/A5102385949",
+          "weight": 1.0
+        },
+        {
+          "u": "https://openalex.org/A5087752279",
           "v": "https://openalex.org/A5102651812",
           "weight": 2.0
+        },
+        {
+          "u": "https://openalex.org/A5102385949",
+          "v": "https://openalex.org/A5102651812",
+          "weight": 1.0
         },
         {
           "u": "https://openalex.org/A5092977299",
@@ -3070,6 +3045,21 @@
           "u": "https://openalex.org/A5123958902",
           "v": "https://openalex.org/A5123977080",
           "weight": 1.0
+        },
+        {
+          "u": "https://openalex.org/A5133120181",
+          "v": "https://openalex.org/A5133129777",
+          "weight": 1.0
+        },
+        {
+          "u": "https://openalex.org/A5133120181",
+          "v": "https://openalex.org/A5133135329",
+          "weight": 1.0
+        },
+        {
+          "u": "https://openalex.org/A5133129777",
+          "v": "https://openalex.org/A5133135329",
+          "weight": 1.0
         }
       ],
       "graph_config": {
@@ -3084,16 +3074,16 @@
   },
   "lcc": {
     "graph_analytics": {
-      "total_nodes": 216,
-      "average_degree": 3.185185185185185,
-      "average_strength": 9.99074074074074,
-      "density": 0.014814814814814815,
-      "weighted_density": 0.0010561036723827422,
-      "average_normalized_strength_of_edges": 0.07128699788583509,
-      "number_of_communities": 18,
+      "total_nodes": 201,
+      "average_degree": 3.1641791044776117,
+      "average_strength": 9.890547263681592,
+      "density": 0.01582089552238806,
+      "weighted_density": 0.0011239258254183628,
+      "average_normalized_strength_of_edges": 0.07104059462550029,
+      "number_of_communities": 15,
       "number_of_hubs": 12,
-      "average_community_density": 0.8426005669469722,
-      "average_hub_degree": 14.25
+      "average_community_density": 0.8436290946273897,
+      "average_hub_degree": 14.083333333333334
     },
     "reconstruction_data": {
       "nodes": [
@@ -3188,7 +3178,6 @@
         "https://openalex.org/A5031854612",
         "https://openalex.org/A5054053617",
         "https://openalex.org/A5057032387",
-        "https://openalex.org/A5086186456",
         "https://openalex.org/A5090476587",
         "https://openalex.org/A5098711752",
         "https://openalex.org/A5103636589",
@@ -3204,8 +3193,6 @@
         "https://openalex.org/A5073699927",
         "https://openalex.org/A5020507127",
         "https://openalex.org/A5020683490",
-        "https://openalex.org/A5023468601",
-        "https://openalex.org/A5031344191",
         "https://openalex.org/A5023671281",
         "https://openalex.org/A5056772542",
         "https://openalex.org/A5047942673",
@@ -3216,13 +3203,6 @@
         "https://openalex.org/A5089985199",
         "https://openalex.org/A5026542542",
         "https://openalex.org/A5026829176",
-        "https://openalex.org/A5027309652",
-        "https://openalex.org/A5044822150",
-        "https://openalex.org/A5083955819",
-        "https://openalex.org/A5102864628",
-        "https://openalex.org/A5116381792",
-        "https://openalex.org/A5117514713",
-        "https://openalex.org/A5118999894",
         "https://openalex.org/A5027513386",
         "https://openalex.org/A5030436769",
         "https://openalex.org/A5069153596",
@@ -3240,16 +3220,11 @@
         "https://openalex.org/A5037849085",
         "https://openalex.org/A5086840442",
         "https://openalex.org/A5062682025",
-        "https://openalex.org/A5039953628",
-        "https://openalex.org/A5075043934",
-        "https://openalex.org/A5076110151",
         "https://openalex.org/A5040575538",
         "https://openalex.org/A5041761036",
         "https://openalex.org/A5041825642",
         "https://openalex.org/A5043492402",
         "https://openalex.org/A5083401247",
-        "https://openalex.org/A5044321899",
-        "https://openalex.org/A5053939046",
         "https://openalex.org/A5049662221",
         "https://openalex.org/A5049911642",
         "https://openalex.org/A5050671511",
@@ -3258,7 +3233,6 @@
         "https://openalex.org/A5051673489",
         "https://openalex.org/A5074623210",
         "https://openalex.org/A5052153990",
-        "https://openalex.org/A5052183240",
         "https://openalex.org/A5052400145",
         "https://openalex.org/A5072323579",
         "https://openalex.org/A5073319172",
@@ -3297,6 +3271,8 @@
         "https://openalex.org/A5118962597",
         "https://openalex.org/A5118962603",
         "https://openalex.org/A5118962610",
+        "https://openalex.org/A5092298489",
+        "https://openalex.org/A5133266657",
         "https://openalex.org/A5076731879",
         "https://openalex.org/A5078747923",
         "https://openalex.org/A5082323302",
@@ -3307,7 +3283,6 @@
         "https://openalex.org/A5106349017",
         "https://openalex.org/A5119239738",
         "https://openalex.org/A5089043245",
-        "https://openalex.org/A5128482899",
         "https://openalex.org/A5105819901",
         "https://openalex.org/A5120813426",
         "https://openalex.org/A5103329434",
@@ -3918,6 +3893,16 @@
         {
           "u": "https://openalex.org/A5032382047",
           "v": "https://openalex.org/A5119195389",
+          "weight": 1.0
+        },
+        {
+          "u": "https://openalex.org/A5074496477",
+          "v": "https://openalex.org/A5092298489",
+          "weight": 1.0
+        },
+        {
+          "u": "https://openalex.org/A5074496477",
+          "v": "https://openalex.org/A5133266657",
           "weight": 1.0
         },
         {
@@ -4622,11 +4607,6 @@
         },
         {
           "u": "https://openalex.org/A5014425589",
-          "v": "https://openalex.org/A5086186456",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5014425589",
           "v": "https://openalex.org/A5090476587",
           "weight": 1.0
         },
@@ -4638,56 +4618,6 @@
         {
           "u": "https://openalex.org/A5014425589",
           "v": "https://openalex.org/A5103636589",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5023468601",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5027309652",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5031344191",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5044822150",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5052183240",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5075043934",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5083864640",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5102864628",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5103636589",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5086186456",
-          "v": "https://openalex.org/A5117514713",
           "weight": 1.0
         },
         {
@@ -4781,11 +4711,6 @@
           "weight": 1.0
         },
         {
-          "u": "https://openalex.org/A5023468601",
-          "v": "https://openalex.org/A5031344191",
-          "weight": 1.0
-        },
-        {
           "u": "https://openalex.org/A5047942673",
           "v": "https://openalex.org/A5067070978",
           "weight": 1.0
@@ -4813,71 +4738,6 @@
         {
           "u": "https://openalex.org/A5089985199",
           "v": "https://openalex.org/A5089043245",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5027309652",
-          "v": "https://openalex.org/A5044822150",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5027309652",
-          "v": "https://openalex.org/A5083955819",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5027309652",
-          "v": "https://openalex.org/A5102864628",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5027309652",
-          "v": "https://openalex.org/A5116381792",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5027309652",
-          "v": "https://openalex.org/A5117514713",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5027309652",
-          "v": "https://openalex.org/A5118999894",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5044822150",
-          "v": "https://openalex.org/A5053939046",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5044822150",
-          "v": "https://openalex.org/A5102864628",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5044822150",
-          "v": "https://openalex.org/A5116381792",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5102864628",
-          "v": "https://openalex.org/A5052183240",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5102864628",
-          "v": "https://openalex.org/A5116381792",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5102864628",
-          "v": "https://openalex.org/A5118999894",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5102864628",
-          "v": "https://openalex.org/A5128482899",
           "weight": 1.0
         },
         {
@@ -4938,26 +4798,6 @@
         {
           "u": "https://openalex.org/A5086840442",
           "v": "https://openalex.org/A5124906990",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5039953628",
-          "v": "https://openalex.org/A5075043934",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5039953628",
-          "v": "https://openalex.org/A5076110151",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5075043934",
-          "v": "https://openalex.org/A5044321899",
-          "weight": 1.0
-        },
-        {
-          "u": "https://openalex.org/A5075043934",
-          "v": "https://openalex.org/A5076110151",
           "weight": 1.0
         },
         {
@@ -5026,6 +4866,11 @@
           "weight": 1.0
         },
         {
+          "u": "https://openalex.org/A5092298489",
+          "v": "https://openalex.org/A5133266657",
+          "weight": 1.0
+        },
+        {
           "u": "https://openalex.org/A5083864640",
           "v": "https://openalex.org/A5084319994",
           "weight": 1.0
@@ -5042,222 +4887,207 @@
       },
       "color_partitions": {
         "communities": [
-          13,
-          13,
-          15,
-          15,
-          17,
-          16,
-          16,
-          16,
-          16,
-          16,
-          11,
-          11,
-          11,
-          11,
-          11,
-          11,
-          11,
-          11,
-          15,
-          1,
-          15,
-          11,
-          16,
-          16,
-          15,
-          15,
-          15,
-          15,
-          15,
-          8,
-          8,
-          15,
-          15,
-          16,
-          16,
-          13,
-          15,
-          13,
-          12,
-          13,
-          13,
-          15,
-          14,
-          13,
-          17,
-          13,
-          12,
-          15,
-          15,
-          15,
-          2,
-          15,
-          15,
-          15,
-          8,
-          8,
-          8,
-          8,
-          6,
-          6,
-          15,
-          6,
-          6,
-          6,
-          17,
-          17,
-          15,
-          13,
           9,
           9,
-          9,
-          15,
           13,
-          7,
-          16,
-          16,
+          13,
           14,
-          14,
-          14,
-          14,
+          11,
+          11,
+          11,
+          11,
+          11,
           7,
           7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          12,
+          13,
+          13,
+          7,
+          11,
           11,
           12,
           12,
-          13,
-          13,
-          13,
-          13,
-          13,
-          13,
-          10,
-          9,
-          13,
-          10,
-          9,
-          9,
-          15,
-          17,
-          17,
-          15,
-          15,
+          12,
+          0,
+          12,
           5,
           5,
-          4,
+          12,
+          12,
           11,
+          11,
+          9,
+          12,
+          9,
+          8,
+          9,
+          9,
           12,
           10,
-          10,
           9,
-          15,
+          14,
+          9,
+          8,
+          13,
+          12,
+          13,
+          12,
+          13,
+          12,
+          12,
+          5,
+          5,
+          5,
+          5,
+          3,
+          3,
+          12,
           3,
           3,
           3,
-          15,
-          17,
-          17,
-          17,
-          11,
-          10,
-          10,
-          10,
-          10,
-          10,
-          10,
-          10,
-          11,
-          11,
-          2,
-          2,
-          17,
-          17,
-          15,
-          15,
-          15,
-          8,
-          8,
           14,
           14,
-          7,
-          15,
-          15,
-          16,
-          0,
-          0,
-          0,
+          13,
+          9,
+          6,
+          6,
+          6,
           12,
-          11,
-          11,
-          11,
-          14,
-          0,
-          10,
-          11,
-          16,
           9,
-          17,
-          9,
-          14,
-          14,
-          16,
+          4,
+          11,
+          11,
           10,
+          10,
+          10,
+          10,
+          4,
+          4,
+          7,
+          8,
           8,
           9,
-          11,
           9,
-          15,
-          15,
-          15,
-          15,
-          15,
-          11,
-          15,
-          7,
-          11,
-          11,
-          11,
-          11,
-          11,
-          16,
-          16,
-          16,
+          9,
+          9,
+          9,
+          9,
+          6,
+          9,
+          9,
+          6,
+          6,
+          12,
+          14,
+          14,
+          13,
+          13,
+          2,
+          2,
           1,
+          7,
+          8,
+          6,
+          12,
+          13,
+          13,
+          13,
+          13,
+          14,
+          14,
+          14,
+          7,
+          7,
+          7,
+          12,
+          12,
+          14,
+          14,
+          12,
+          12,
+          12,
           5,
-          12,
-          12,
-          15,
+          5,
+          10,
+          10,
+          4,
+          13,
+          13,
+          11,
+          8,
+          7,
+          7,
+          7,
+          10,
+          7,
+          11,
+          6,
+          14,
+          6,
+          10,
+          10,
+          11,
+          5,
+          6,
+          7,
           6,
           13,
-          8,
-          8,
-          14,
-          14,
           13,
-          8,
-          17,
-          4,
-          4,
-          4,
-          4,
-          11,
-          12,
-          8,
-          10,
-          10,
           13,
-          11,
-          15,
-          12,
-          17,
-          10,
+          13,
+          13,
           7,
           12,
+          4,
+          7,
+          7,
+          7,
+          7,
+          7,
+          11,
+          11,
+          11,
           13,
+          2,
+          8,
+          8,
+          12,
+          3,
+          9,
+          5,
+          5,
+          10,
+          10,
+          9,
+          5,
+          14,
           1,
-          1
+          1,
+          1,
+          1,
+          0,
+          0,
+          7,
+          8,
+          5,
+          9,
+          9,
+          9,
+          7,
+          13,
+          8,
+          14,
+          4,
+          8,
+          9,
+          13,
+          13
         ],
         "hubs": [
           "#63C791",
@@ -5275,40 +5105,9 @@
           "#63C791",
           "#63C791",
           "#C76399",
-          "#63C791",
-          "#63C791",
-          "#C76399",
           "#C76399",
           "#63C791",
           "#C76399",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#C76399",
-          "#C76399",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#C76399",
-          "#63C791",
-          "#63C791",
-          "#C76399",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
           "#C76399",
           "#63C791",
           "#C76399",
@@ -5326,6 +5125,37 @@
           "#63C791",
           "#63C791",
           "#63C791",
+          "#C76399",
+          "#C76399",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#C76399",
+          "#63C791",
+          "#63C791",
+          "#C76399",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#C76399",
+          "#63C791",
+          "#C76399",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
+          "#63C791",
           "#63C791",
           "#63C791",
           "#63C791",
@@ -5346,21 +5176,6 @@
           "#63C791",
           "#63C791",
           "#C76399",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#C76399",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
-          "#63C791",
           "#63C791",
           "#63C791",
           "#63C791",
@@ -5485,10 +5300,10 @@
       "hyperdensity": -1,
       "average_hyperdegree": 2.87,
       "group_size_proportions": {
-        "2": 73.51,
-        "3": 22.39,
-        "4": 3.73,
-        "6": 0.37
+        "2": 74.0,
+        "3": 22.0,
+        "4": 3.6,
+        "6": 0.4
       }
     },
     "reconstruction_data": {
@@ -5586,10 +5401,6 @@
           "https://openalex.org/A5057302873"
         ],
         [
-          "https://openalex.org/A5004319715",
-          "https://openalex.org/A5104275759"
-        ],
-        [
           "https://openalex.org/A5000252858",
           "https://openalex.org/A5001719110"
         ],
@@ -5601,6 +5412,10 @@
         [
           "https://openalex.org/A5001820277",
           "https://openalex.org/A5040368925"
+        ],
+        [
+          "https://openalex.org/A5004319715",
+          "https://openalex.org/A5104275759"
         ],
         [
           "https://openalex.org/A5003571840",
@@ -5825,11 +5640,6 @@
           "https://openalex.org/A5069570111"
         ],
         [
-          "https://openalex.org/A5014425589",
-          "https://openalex.org/A5086186456",
-          "https://openalex.org/A5103636589"
-        ],
-        [
           "https://openalex.org/A5010957955",
           "https://openalex.org/A5035274341"
         ],
@@ -5876,11 +5686,6 @@
         [
           "https://openalex.org/A5019353593",
           "https://openalex.org/A5050180194"
-        ],
-        [
-          "https://openalex.org/A5023468601",
-          "https://openalex.org/A5031344191",
-          "https://openalex.org/A5086186456"
         ],
         [
           "https://openalex.org/A5020433988",
@@ -5971,8 +5776,8 @@
           "https://openalex.org/A5069153596"
         ],
         [
-          "https://openalex.org/A5031344191",
-          "https://openalex.org/A5086186456"
+          "https://openalex.org/A5026542542",
+          "https://openalex.org/A5073272459"
         ],
         [
           "https://openalex.org/A5024452783",
@@ -5980,20 +5785,8 @@
           "https://openalex.org/A5056772542"
         ],
         [
-          "https://openalex.org/A5026542542",
-          "https://openalex.org/A5073272459"
-        ],
-        [
           "https://openalex.org/A5032165138",
           "https://openalex.org/A5087220645"
-        ],
-        [
-          "https://openalex.org/A5027309652",
-          "https://openalex.org/A5086186456"
-        ],
-        [
-          "https://openalex.org/A5027309652",
-          "https://openalex.org/A5044822150"
         ],
         [
           "https://openalex.org/A5026257219",
@@ -6025,24 +5818,8 @@
           "https://openalex.org/A5087606057"
         ],
         [
-          "https://openalex.org/A5027309652",
-          "https://openalex.org/A5044822150",
-          "https://openalex.org/A5102864628",
-          "https://openalex.org/A5116381792"
-        ],
-        [
           "https://openalex.org/A5032981254",
           "https://openalex.org/A5101836136"
-        ],
-        [
-          "https://openalex.org/A5027309652",
-          "https://openalex.org/A5086186456",
-          "https://openalex.org/A5117514713"
-        ],
-        [
-          "https://openalex.org/A5027309652",
-          "https://openalex.org/A5102864628",
-          "https://openalex.org/A5118999894"
         ],
         [
           "https://openalex.org/A5024452783",
@@ -6056,10 +5833,6 @@
         [
           "https://openalex.org/A5032382047",
           "https://openalex.org/A5119195389"
-        ],
-        [
-          "https://openalex.org/A5027309652",
-          "https://openalex.org/A5083955819"
         ],
         [
           "https://openalex.org/A5037849085",
@@ -6116,22 +5889,9 @@
           "https://openalex.org/A5062682025"
         ],
         [
-          "https://openalex.org/A5039953628",
-          "https://openalex.org/A5075043934",
-          "https://openalex.org/A5076110151"
-        ],
-        [
           "https://openalex.org/A5035274341",
           "https://openalex.org/A5064393301",
           "https://openalex.org/A5102959740"
-        ],
-        [
-          "https://openalex.org/A5044822150",
-          "https://openalex.org/A5086186456"
-        ],
-        [
-          "https://openalex.org/A5044822150",
-          "https://openalex.org/A5053939046"
         ],
         [
           "https://openalex.org/A5045009324",
@@ -6168,10 +5928,6 @@
         [
           "https://openalex.org/A5049662221",
           "https://openalex.org/A5087995009"
-        ],
-        [
-          "https://openalex.org/A5044321899",
-          "https://openalex.org/A5075043934"
         ],
         [
           "https://openalex.org/A5043940552",
@@ -6238,10 +5994,6 @@
         [
           "https://openalex.org/A5055409815",
           "https://openalex.org/A5057311986"
-        ],
-        [
-          "https://openalex.org/A5052183240",
-          "https://openalex.org/A5102864628"
         ],
         [
           "https://openalex.org/A5054481143",
@@ -6325,11 +6077,6 @@
         [
           "https://openalex.org/A5053245461",
           "https://openalex.org/A5073319172"
-        ],
-        [
-          "https://openalex.org/A5052183240",
-          "https://openalex.org/A5086186456",
-          "https://openalex.org/A5102864628"
         ],
         [
           "https://openalex.org/A5054481143",
@@ -6496,8 +6243,32 @@
           "https://openalex.org/A5104882888"
         ],
         [
+          "https://openalex.org/A5073699927",
+          "https://openalex.org/A5087606057"
+        ],
+        [
+          "https://openalex.org/A5073699927",
+          "https://openalex.org/A5118962582"
+        ],
+        [
+          "https://openalex.org/A5073699927",
+          "https://openalex.org/A5118962597"
+        ],
+        [
+          "https://openalex.org/A5073699927",
+          "https://openalex.org/A5118962603"
+        ],
+        [
+          "https://openalex.org/A5073699927",
+          "https://openalex.org/A5118962610"
+        ],
+        [
           "https://openalex.org/A5073961153",
           "https://openalex.org/A5074750780"
+        ],
+        [
+          "https://openalex.org/A5074496477",
+          "https://openalex.org/A5092298489"
         ],
         [
           "https://openalex.org/A5078747923",
@@ -6517,16 +6288,8 @@
           "https://openalex.org/A5087995009"
         ],
         [
-          "https://openalex.org/A5075043934",
-          "https://openalex.org/A5086186456"
-        ],
-        [
           "https://openalex.org/A5082349327",
           "https://openalex.org/A5101836136"
-        ],
-        [
-          "https://openalex.org/A5073699927",
-          "https://openalex.org/A5087606057"
         ],
         [
           "https://openalex.org/A5074750780",
@@ -6537,24 +6300,9 @@
           "https://openalex.org/A5085477593"
         ],
         [
-          "https://openalex.org/A5075043934",
-          "https://openalex.org/A5076110151"
-        ],
-        [
-          "https://openalex.org/A5073699927",
-          "https://openalex.org/A5118962582"
-        ],
-        [
-          "https://openalex.org/A5073699927",
-          "https://openalex.org/A5118962597"
-        ],
-        [
-          "https://openalex.org/A5073699927",
-          "https://openalex.org/A5118962603"
-        ],
-        [
-          "https://openalex.org/A5073699927",
-          "https://openalex.org/A5118962610"
+          "https://openalex.org/A5074496477",
+          "https://openalex.org/A5092298489",
+          "https://openalex.org/A5133266657"
         ],
         [
           "https://openalex.org/A5083864640",
@@ -6569,20 +6317,12 @@
           "https://openalex.org/A5104728998"
         ],
         [
-          "https://openalex.org/A5086186456",
-          "https://openalex.org/A5103636589"
-        ],
-        [
           "https://openalex.org/A5086443843",
           "https://openalex.org/A5087995009"
         ],
         [
           "https://openalex.org/A5085867158",
           "https://openalex.org/A5106034458"
-        ],
-        [
-          "https://openalex.org/A5083864640",
-          "https://openalex.org/A5086186456"
         ],
         [
           "https://openalex.org/A5089043245",
@@ -6639,10 +6379,6 @@
         [
           "https://openalex.org/A5103174557",
           "https://openalex.org/A5120813426"
-        ],
-        [
-          "https://openalex.org/A5102864628",
-          "https://openalex.org/A5128482899"
         ],
         [
           "https://openalex.org/A5123958902",

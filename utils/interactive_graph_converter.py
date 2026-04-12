@@ -245,6 +245,8 @@ def _load_author_display_names(path: Path = RAW_AUTHORS_PATH) -> dict[str, str]:
     return display_names
 
 def generate_interactive_graph(nx_graph: nx.Graph, graph_name: str = "interactive_graph.html"):
+    graph_for_vis = nx_graph.copy()
+
     net = Network(
         height="750px",
         width="100%",
@@ -255,16 +257,16 @@ def generate_interactive_graph(nx_graph: nx.Graph, graph_name: str = "interactiv
     )
 
     author_display_names = _load_author_display_names()
-    degrees = dict(nx_graph.degree())
-    strengths = dict(nx_graph.degree(weight="weight"))
+    degrees = dict(graph_for_vis.degree())
+    strengths = dict(graph_for_vis.degree(weight="weight"))
 
-    for node in nx_graph.nodes():
+    for node in graph_for_vis.nodes():
         deg = degrees[node]
         strg = strengths.get(node, 0)
         display_name = author_display_names.get(node, node)
 
-        nx_graph.nodes[node]["value"] = deg
-        nx_graph.nodes[node]["color"] = {
+        graph_for_vis.nodes[node]["value"] = deg
+        graph_for_vis.nodes[node]["color"] = {
             "background": "#63c791",
             "border": "#63c791",
             "highlight": {
@@ -276,15 +278,15 @@ def generate_interactive_graph(nx_graph: nx.Graph, graph_name: str = "interactiv
                 "border": "#63c791",
             },
         }
-        nx_graph.nodes[node]["title"] = (
+        graph_for_vis.nodes[node]["title"] = (
             f"Name: {display_name}\n"
             f"Author ID: {node}\n"
             f"Degree: {deg}\n"
             f"Strength: {strg:.2f}"
         )
-        nx_graph.nodes[node]["label"] = display_name
+        graph_for_vis.nodes[node]["label"] = display_name
 
-    for u, v, data in nx_graph.edges(data=True):
+    for u, v, data in graph_for_vis.edges(data=True):
         if "weight" in data:
             data["value"] = data["weight"]
             data["title"] = f"Weight: {data['weight']}"
@@ -295,7 +297,7 @@ def generate_interactive_graph(nx_graph: nx.Graph, graph_name: str = "interactiv
             "inherit": False,
         }
 
-    net.from_nx(nx_graph)
+    net.from_nx(graph_for_vis)
 
     # ensure output dir exists
     GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
